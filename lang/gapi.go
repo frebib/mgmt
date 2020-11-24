@@ -183,6 +183,7 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not activate an input parser")
 	}
+	logf("input from %s source: %s", output.Source, input)
 
 	// no need to run recursion detection since this is the beginning
 	// TODO: do the paths need to be cleaned for "../" before comparison?
@@ -656,6 +657,7 @@ func (obj *GAPI) Get(getInfo *gapi.GetInfo) error {
 	if err != nil {
 		return errwrap.Wrapf(err, "could not activate an input parser")
 	}
+	logf("input from %s source: %s", output.Source, input)
 
 	// no need to run recursion detection since this is the beginning
 	// TODO: do the paths need to be cleaned for "../" before comparison?
