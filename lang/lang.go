@@ -107,6 +107,8 @@ func (obj *Lang) Init() error {
 		// by the time *this* parseInput runs, we should be standardized
 		return fmt.Errorf("input contained file system workers")
 	}
+	obj.Logf("input from %s source: %s", output.Source, obj.Input)
+
 	reader := bytes.NewReader(output.Main)
 
 	// no need to run recursion detection since this is the beginning

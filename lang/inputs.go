@@ -46,20 +46,21 @@ import (
 
 var (
 	// inputOrder contains the correct running order of the input functions.
-	inputOrder = []func(string, engine.Fs) (*ParsedInput, error){
-		inputEmpty,
-		inputStdin,
-		inputMetadata,
-		inputMcl,
-		inputDirectory,
-		inputCode,
-		//inputFail,
+	inputOrder = map[string]func(string, engine.Fs) (*ParsedInput, error){
+		"empty":     inputEmpty,
+		"stdin":     inputStdin,
+		"metadata":  inputMetadata,
+		"mcl":       inputMcl,
+		"directory": inputDirectory,
+		"code":      inputCode,
+		// "input":     inputFail,
 	}
 )
 
 // ParsedInput is the output struct which contains all the information we need.
 type ParsedInput struct {
 	//activated bool // if struct is not nil we're activated
+	Source   string   // parse source, such as directory, mcl, code, etc
 	Base     string   // base path (abs path with trailing slash)
 	Main     []byte   // contents of main entry mcl code
 	Files    []string // files and dirs to copy to fs (abs paths)
@@ -74,13 +75,14 @@ func parseInput(s string, fs engine.Fs) (*ParsedInput, error) {
 	var output *ParsedInput
 	activated := false
 	// i decided this was a cleaner way of input parsing than a big if-else!
-	for _, fn := range inputOrder { // list of input detection functions
+	for input, fn := range inputOrder { // list of input detection functions
 		output, err = fn(s, fs)
 		if err != nil {
 			return nil, err
 		}
 		if output != nil { // activated!
 			activated = true
+			output.Source = input.name
 			break
 		}
 	}

@@ -3147,6 +3147,7 @@ func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, pa
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not activate an input parser")
 	}
+	obj.data.Logf("input from %s source: %s", output.Source, s)
 
 	// TODO: rm this old, and incorrect, linear file duplicate checking...
 	// recursion detection (i guess following the imports has to be a dag!)
