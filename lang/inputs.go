@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -200,6 +201,7 @@ func inputMetadata(s string, fs engine.Fs) (*ParsedInput, error) {
 	// real files/ directory
 	if metadata.Files != "" { // TODO: nil pointer instead?
 		filesDir := basePath + metadata.Files
+		// TODO: handle files that throw stat(2) errors
 		if _, err := fs.Stat(filesDir); err == nil {
 			files = append(files, filesDir)
 		}
@@ -269,25 +271,31 @@ func inputMcl(s string, fs engine.Fs) (*ParsedInput, error) {
 
 // inputDirectory checks if we're given the path to a directory.
 func inputDirectory(s string, fs engine.Fs) (*ParsedInput, error) {
-	if !strings.HasSuffix(s, "/") {
-		return nil, nil // not us, but no error
-	}
-	var err error
-	if s, err = absify(s); err != nil { // s is now absolute
-		return nil, err
-	}
 	// does dir exist?
 	fi, err := fs.Stat(s)
 	if err != nil {
-		return nil, errwrap.Wrapf(err, "dir: `%s` does not exist", s)
+		if os.IsNotExist(err) {
+			return nil, nil // not us, but no error
+		}
+
+		return nil, errwrap.Wrapf(err, "could not stat dir `%s`", s)
 	}
 	if !fi.IsDir() {
 		return nil, errwrap.Wrapf(err, "dir: `%s` is not a dir", s)
 	}
 
+	if s, err = absify(s); err != nil { // s is now absolute
+		return nil, err
+	}
+
 	// try looking for a metadata file in the root
-	md := s + interfaces.MetadataFilename // absolute file
-	if _, err := fs.Stat(md); err == nil {
+	md := path.Join(s, interfaces.MetadataFilename) // absolute file
+	_, err = fs.Stat(md)
+	// only return errors if they're not ENOENT, e.g. EPERM, EACCES
+	// Ignore ENOENT errors and assume that the file is deliberately absent.
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	} else if err == nil {
 		if x, err := inputMetadata(md, fs); err != nil { // recurse
 			return nil, err
 		} else if x != nil {
@@ -296,8 +304,12 @@ func inputDirectory(s string, fs engine.Fs) (*ParsedInput, error) {
 	}
 
 	// try looking for a main.mcl file in the root
-	mf := s + interfaces.MainFilename // absolute file
-	if _, err := fs.Stat(mf); err == nil {
+	mf := path.Join(s, interfaces.MainFilename) // absolute file
+	_, err = fs.Stat(mf)
+	// same error handling as above. ignore ENOENT and handle all others
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	} else if err == nil {
 		if x, err := inputMcl(mf, fs); err != nil { // recurse
 			return nil, err
 		} else if x != nil {
