@@ -58,8 +58,19 @@ func ValueOf(v reflect.Value) (Value, error) {
 	typ := value.Type()
 	kind := typ.Kind()
 	for kind == reflect.Ptr {
+		// Not much that can be done here. Caller must pass a Settable Ptr value.
+		if !value.CanSet() {
+			return nil, &reflect.ValueError{Method: "reflect.Set", Kind: kind}
+		}
+
 		typ = typ.Elem() // un-nest one pointer
 		kind = typ.Kind()
+
+		// If pointer is nil, instantiate the destination type and point at it
+		// to prevent nil pointer dereference when setting values.
+		if value.IsNil() {
+			value.Set(reflect.New(typ))
+		}
 
 		// un-nest value from pointer
 		value = value.Elem() // XXX: is this correct?
@@ -153,6 +164,14 @@ func ValueOf(v reflect.Value) (Value, error) {
 		values := make(map[string]Value)
 		for i := 0; i < l; i++ {
 			x := value.Field(i)
+			// It's likely that setting the field is desirable, so clone the
+			// field to prevent the recursive ValueOf() call failing. This is
+			// obviously slower so hope we don't need this often.
+			if !x.CanSet() {
+				c := reflect.New(x.Type()).Elem()
+				c.Set(x)
+				x = c
+			}
 			v, err := ValueOf(x) // recurse
 			if err != nil {
 				return nil, err

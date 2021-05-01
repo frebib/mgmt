@@ -27,6 +27,28 @@ import (
 	"testing"
 )
 
+// mustValue converts a Go variable to a types.Value, or panics if any error.
+func mustValue(v interface{}) Value {
+	val, err := ValueOfGolang(v)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+
+// Reflect variant of & on a variable. Creates a pointer in memory, sets the
+// destination, then returns the pointer.
+func ptrto(v interface{}) interface{} {
+	p := reflect.New(reflect.TypeOf(v))
+	p.Elem().Set(reflect.ValueOf(v))
+	return p.Interface()
+}
+
+// ptrstr creates a pointer to the specified string, and returns it.
+func ptrstr(s string) *string {
+	return ptrto(s).(*string)
+}
+
 func TestPrint1(t *testing.T) {
 	testCases := map[Value]string{
 		&BoolValue{V: true}:            "true",
@@ -615,15 +637,17 @@ func TestValueOf0(t *testing.T) {
 			},
 		}: map[string]int{"a": 1, "b": 2, "c": 3}, // go map ordering is alphabetically sorted
 		&StructValue{
-			T: NewType("struct{num int; name str}"),
+			T: NewType("struct{num int; name str; ptr str}"),
 			V: map[string]Value{
 				"num":  &IntValue{V: 42},
 				"name": &StrValue{V: "mgmt"},
+				"ptr":  &StrValue{V: "point"},
 			},
 		}: struct {
-			num  int
-			name string
-		}{42, "mgmt"},
+			Num  int     `lang:"num"`
+			Name string  `lang:"name"`
+			Ptr  *string `lang:"ptr"`
+		}{42, "mgmt", ptrstr("point")},
 		// TODO: implement ValueOf tests for TypeFunc
 	}
 
@@ -632,35 +656,18 @@ func TestValueOf0(t *testing.T) {
 		val, err := ValueOf(reflect.ValueOf(gotyp))
 		if err != nil {
 			t.Errorf("function ValueOf(%+v) returned err %s", gotyp, err)
+			continue
 		}
 		// use string representation comparison as maps are non-deterministic in order
 		// and cmp doesn't work as the pointers differ
 		if val.String() != value.String() {
 			t.Errorf("function ValueOf(%+v) gave %+v and doesn't match expected %+v", gotyp, val, value)
+			continue
 		}
 	}
 }
 
 func TestValueInto0(t *testing.T) {
-	// converts a Go variable to a types.Value, or panics if any error
-	mustValue := func(v interface{}) Value {
-		val, err := ValueOfGolang(v)
-		if err != nil {
-			panic(err)
-		}
-		return val
-	}
-	// reflect variant of & on a variable. Creates a pointer in
-	// memory, sets the destination, then returns the pointer
-	ptrto := func(v interface{}) interface{} {
-		p := reflect.New(reflect.TypeOf(v))
-		p.Elem().Set(reflect.ValueOf(v))
-		return p.Interface()
-	}
-	ptrstr := func(s string) *string {
-		return ptrto(s).(*string)
-	}
-
 	// various container variables for below tests
 	var b bool
 	var s string
