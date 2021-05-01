@@ -107,24 +107,6 @@ if ! in_ci; then
 	fi
 fi
 
-if in_ci; then
-	# TODO: consider bumping to new package manager version
-	RAGEL_VERSION='6.10'	# current stable version
-	RAGEL_TMP='/tmp/ragel/'
-	RAGEL_FILE="${RAGEL_TMP}ragel-${RAGEL_VERSION}.tar.gz"
-	RAGEL_DIR="${RAGEL_TMP}ragel-${RAGEL_VERSION}/"
-	mkdir -p "$RAGEL_TMP"
-	cd "$RAGEL_TMP"
-	wget "https://www.colm.net/files/ragel/ragel-${RAGEL_VERSION}.tar.gz" -O "$RAGEL_FILE"
-	tar -xvf "$RAGEL_FILE"
-	cd -
-	cd "$RAGEL_DIR"
-	./configure --prefix=/usr/local --disable-manual
-	make
-	sudo make install
-	cd -
-fi
-
 # attempt to workaround old ubuntu
 if [ -n "$APT" -a "$golangversion" -lt "$mingolangversion" ]; then
 	echo "install golang from a ppa."
