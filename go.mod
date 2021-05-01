@@ -19,6 +19,7 @@ require (
 	github.com/hashicorp/hil v0.0.0-20201113172851-43f73a9c7007
 	github.com/iancoleman/strcase v0.1.3
 	github.com/insomniacslk/dhcp v0.0.0-20210428091707-95b2ff6905c9
+	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/kylelemons/godebug v1.1.0
 	github.com/libvirt/libvirt-go v7.0.0+incompatible
 	github.com/libvirt/libvirt-go-xml v7.2.0+incompatible
@@ -31,7 +32,6 @@ require (
 	github.com/prometheus/client_golang v1.10.0
 	github.com/sanity-io/litter v1.5.0
 	github.com/spf13/afero v1.6.0
-	github.com/tmthrgd/go-bindata v0.0.0-20190904063317-a4b65675e0fb
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vishvananda/netlink v1.1.0
 	go.etcd.io/etcd/api/v3 v3.5.0-alpha.0
