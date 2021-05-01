@@ -26,17 +26,16 @@
 .PHONY: build clean
 default: build
 
-build: bindata.go
+GENERATOR = generate.go
+GENERATED = bindata.go
+
+build: $(GENERATED)
 
 # add more input files as dependencies at the end here...
-bindata.go: ../COPYING
+$(GENERATED): $(GENERATOR) $(MCL_FILES)
 	@echo "Generating: bindata..."
-	# go-bindata --pkg bindata -o <OUTPUT> <INPUT>
-	go-bindata --pkg bindata -o ./$@ $^
-	# gofmt the output file
-	gofmt -s -w $@
-	@ROOT=$$(dirname "$${BASH_SOURCE}")/.. && $$ROOT/misc/header.sh '$@'
+	@go generate $<
 
 clean:
 	# remove generated bindata.go
-	@ROOT=$$(dirname "$${BASH_SOURCE}")/.. && rm -f bindata.go
+	@$(RM) -f bindata.go

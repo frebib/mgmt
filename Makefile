@@ -143,7 +143,7 @@ bindata: ## generate go files from non-go sources
 	$(MAKE) --quiet -C lang/funcs
 
 generate:
-	go generate
+	@go generate ./...
 
 lang: ## generates the lexer/parser for the language frontend
 	@# recursively run make in child dir named lang
@@ -153,9 +153,8 @@ lang: ## generates the lexer/parser for the language frontend
 $(PROGRAM): build/mgmt-${GOHOSTOS}-${GOHOSTARCH} ## build an mgmt binary for current host os/arch
 	cp -a $< $@
 
-$(PROGRAM).static: $(GO_FILES) $(MCL_FILES)
+$(PROGRAM).static: $(GO_FILES) $(MCL_FILES) generate
 	@echo "Building: $(PROGRAM).static, version: $(SVERSION)..."
-	go generate
 	go build -a -installsuffix cgo -tags netgo -ldflags '-extldflags "-static" -X main.program=$(PROGRAM) -X main.version=$(SVERSION) -s -w' -o $(PROGRAM).static $(BUILD_FLAGS);
 
 build: LDFLAGS=-s -w ## build a fresh mgmt binary

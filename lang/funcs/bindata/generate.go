@@ -15,5 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package bindata stores core mcl code that is built-in at compile time.
 package bindata
+
+//go:generate sh -c "cd ..; find * -name '*.mcl' -not -path 'old/*' -not -path 'tmp/*' | xargs go-bindata -pkg bindata -o bindata/bindata.go"
+//go:generate gofmt -s -w bindata.go
+//go:generate ../../../misc/header.sh bindata.go

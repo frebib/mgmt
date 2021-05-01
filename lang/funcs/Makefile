@@ -27,19 +27,16 @@
 default: build
 
 MCL_FILES := $(shell find * -name '*.mcl' -not -path 'old/*' -not -path 'tmp/*')
+GENERATOR = bindata/generate.go
 GENERATED = bindata/bindata.go
 
 build: $(GENERATED)
 
 # add more input files as dependencies at the end here...
-$(GENERATED): $(MCL_FILES)
+$(GENERATED): $(GENERATOR) $(MCL_FILES)
 	@echo "Generating: native mcl..."
-	@# go-bindata --pkg bindata -o <OUTPUT> <INPUT>
-	go-bindata --pkg bindata -o ./$@ $^
-	@# gofmt the output file
-	gofmt -s -w $@
-	@ROOT=$$(dirname "$${BASH_SOURCE}")/../.. && $$ROOT/misc/header.sh '$@'
+	@go generate $<
 
 clean:
 	@# remove generated bindata/bindata.go
-	@ROOT=$$(dirname "$${BASH_SOURCE}")/../.. && rm -f $(GENERATED)
+	@rm -f $(GENERATED)
