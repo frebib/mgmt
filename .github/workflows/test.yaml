@@ -68,3 +68,8 @@ jobs:
         working-directory: ./go/src/github.com/purpleidea/mgmt
         run: |
           TEST_BLOCK="${{ matrix.test_block }}" make test
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          skip-go-installation: true
