@@ -22,7 +22,7 @@ import (
 
 	"github.com/purpleidea/mgmt/etcd/interfaces"
 
-	etcdtypes "go.etcd.io/etcd/pkg/types"
+	etcdtypes "go.etcd.io/etcd/pkg/v3/types"
 )
 
 // Data represents the input data that is passed to the chooser.

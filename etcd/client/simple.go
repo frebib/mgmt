@@ -26,8 +26,8 @@ import (
 	"github.com/purpleidea/mgmt/etcd/interfaces"
 	"github.com/purpleidea/mgmt/util/errwrap"
 
-	etcd "go.etcd.io/etcd/clientv3" // "clientv3"
-	"go.etcd.io/etcd/clientv3/namespace"
+	etcd "go.etcd.io/etcd/client/v3" // "client/v3"
+	"go.etcd.io/etcd/client/v3/namespace"
 )
 
 // method represents the method we used to build the simple client.
