@@ -381,7 +381,7 @@ Loop:
 				continue
 			}
 			if obj.Debug {
-				obj.Logf("event received")
+				obj.Logf("%s: event received", vertex)
 			}
 			reserv = limiter.ReserveN(time.Now(), 1) // one event
 			// reserv.OK() seems to always be true here!

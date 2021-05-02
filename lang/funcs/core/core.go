@@ -32,4 +32,6 @@ import (
 	_ "github.com/purpleidea/mgmt/lang/funcs/core/strings"
 	_ "github.com/purpleidea/mgmt/lang/funcs/core/sys"
 	_ "github.com/purpleidea/mgmt/lang/funcs/core/world"
+
+	_ "github.com/purpleidea/mgmt/lang/funcs/core/docker"
 )

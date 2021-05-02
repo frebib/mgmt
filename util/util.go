@@ -59,6 +59,21 @@ func StrInList(needle string, haystack []string) bool {
 	return false
 }
 
+// StrSliceEqual returns true if two slices have the same elements in the same
+// order, compared with == equality.
+// TODO: this _really_ should be a generic function, taking []interface{}
+func StrSliceEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, s := range a {
+		if s != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 // Uint64KeyFromStrInMap returns true if needle is found in haystack of keys
 // that have uint64 type.
 func Uint64KeyFromStrInMap(needle string, haystack map[uint64]string) (uint64, bool) {
@@ -169,6 +184,18 @@ func StrMapValuesUint64(m map[uint64]string) []string {
 		result = append(result, v)
 	}
 	sort.Strings(result) // deterministic order
+	return result
+}
+
+// StrMapKeyEqualValue returns a string slice in the form []string{"key=value"}
+// for a given map[string]string{"key": "value"}
+func StrMapKeyEqualValue(m map[string]string) []string {
+	result := make([]string, len(m))
+	i := 0
+	for key, value := range m {
+		result[i] = fmt.Sprintf("%s=%s", key, value)
+		i++
+	}
 	return result
 }
 

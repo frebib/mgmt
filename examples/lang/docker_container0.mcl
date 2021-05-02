@@ -1,6 +1,15 @@
+import "docker"
+
 docker:container "mgmt-nginx" {
 	state => "running",
 	image => "nginx",
 	cmd => ["nginx", "-g", "daemon off;",],
 	ports => {"tcp" => {80 => 8080,},},
+	force => true,
+	restart => "always",
+	volumes => [
+		docker.parse_volume("/etc:/host/etc"),
+		docker.parse_volume("/tmp:/host/tmp:ro"),
+		docker.parse_volume("/var:/host/var:rw"),
+	],
 }

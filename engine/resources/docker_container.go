@@ -23,8 +23,8 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"reflect"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/purpleidea/mgmt/engine"
@@ -32,10 +32,13 @@ import (
 	"github.com/purpleidea/mgmt/util"
 	"github.com/purpleidea/mgmt/util/errwrap"
 
+	dockeropts "github.com/docker/cli/opts"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/volume/mounts"
 	"github.com/docker/go-connections/nat"
 )
 
@@ -65,22 +68,41 @@ type DockerContainerRes struct {
 	traits.Edgeable
 
 	// State of the container must be running, stopped, or removed.
-	State string `yaml:"state"`
-	// Image is a docker image, or image:tag.
-	Image string `yaml:"image"`
+	State string `lang:"state"`
 	// Cmd is a command, or list of commands to run on the container.
-	Cmd []string `yaml:"cmd"`
+	Cmd []string `lang:"cmd"`
+	// DNS is a list of custom DNS servers
+	DNS []string `lang:"dns"`
+	// Devices is a list of device mappings
+	Devices []string `lang:"devices"`
+	// Domainname is the Domain name of the container
+	Domainname string `lang:"domainname"`
 	// Env is a list of environment variables. E.g. ["VAR=val",].
-	Env []string `yaml:"env"`
+	Env map[string]string `lang:"env"`
+	// Hostname is the hostname of the container
+	Hostname string `lang:"hostname"`
+	// Image is a docker image, or image:tag.
+	Image string `lang:"image"`
+	// Labels is a list of metadata labels
+	Labels map[string]string `lang:"labels"`
 	// Ports is a map of port bindings. E.g. {"tcp" => {80 => 8080},}.
-	Ports map[string]map[int64]int64 `yaml:"ports"`
+	Ports map[string]map[int64]int64 `lang:"ports"`
+	// Restart is the policy used to determine how to restart the container
+	Restart string `lang:"restart"`
+	// parsed restart policy and assigned during Validate()
+	restartPolicy container.RestartPolicy
+	// User is the username/uid that will run the cmd inside the container
+	User string `lang:"user"`
+	// Volumes is a list of volume/bind-mount mappings
+	Volumes []mount.Mount `lang:"volumes"`
+
 	// APIVersion allows you to override the host's default client API
 	// version.
-	APIVersion string `yaml:"apiversion"`
+	APIVersion string `lang:"apiversion"`
 
 	// Force, if true, this will destroy and redeploy the container if the
 	// image is incorrect.
-	Force bool `yaml:"force"`
+	Force bool `lang:"force"`
 
 	client *client.Client // docker api client
 
@@ -107,9 +129,9 @@ func (obj *DockerContainerRes) Validate() error {
 	}
 
 	// validate env
-	for _, env := range obj.Env {
-		if !strings.Contains(env, "=") || strings.Contains(env, " ") {
-			return fmt.Errorf("invalid environment variable: %s", env)
+	for key := range obj.Env {
+		if key == "" {
+			return fmt.Errorf("environment variable name cannot be empty")
 		}
 	}
 
@@ -125,6 +147,30 @@ func (obj *DockerContainerRes) Validate() error {
 		}
 	}
 
+	// validate volumes
+	parser := mounts.NewParser(mounts.OSLinux)
+	for i := range obj.Volumes {
+		vol := &obj.Volumes[i]
+
+		// Due to mgmt lang not having nil pointers, all structs come pre-initialised
+		// which makes the volume parser unhappy. Remove the unused empty structs
+		switch vol.Type {
+		case mount.TypeBind:
+			vol.VolumeOptions = nil
+			vol.TmpfsOptions = nil
+		case mount.TypeVolume:
+			vol.BindOptions = nil
+			vol.TmpfsOptions = nil
+		case mount.TypeTmpfs:
+			vol.BindOptions = nil
+			vol.VolumeOptions = nil
+		}
+
+		if err := parser.ValidateMountConfig(vol); err != nil {
+			return err
+		}
+	}
+
 	// validate APIVersion
 	if obj.APIVersion != "" {
 		verOK, err := regexp.MatchString(`^(v)[1-9]\.[0-9]\d*$`, obj.APIVersion)
@@ -135,6 +181,17 @@ func (obj *DockerContainerRes) Validate() error {
 			return fmt.Errorf("invalid apiversion: %s", obj.APIVersion)
 		}
 	}
+
+	// validate restart policy
+	policy, err := dockeropts.ParseRestartPolicy(obj.Restart)
+	if err != nil {
+		return fmt.Errorf("invalid restart policy: %s", err)
+	}
+	if !(policy.IsAlways() || policy.IsNone() ||
+		policy.IsOnFailure() || policy.IsUnlessStopped()) {
+		return fmt.Errorf("policy must be always, on-failure, unless-stopped or no")
+	}
+	obj.restartPolicy = container.RestartPolicy(policy)
 
 	return nil
 }
@@ -186,7 +243,9 @@ func (obj *DockerContainerRes) Watch() error {
 				return nil
 			}
 			if obj.init.Debug {
-				obj.init.Logf("%+v", event)
+				obj.init.Logf("event received: Type=%s Action=%s Actor=%s",
+					event.Type, event.Action, event.Actor.ID,
+				)
 			}
 			send = true
 
@@ -197,6 +256,7 @@ func (obj *DockerContainerRes) Watch() error {
 			return err
 
 		case <-obj.init.Done: // closed by the engine to signal shutdown
+			obj.init.Logf("done")
 			return nil
 		}
 
@@ -219,39 +279,62 @@ func (obj *DockerContainerRes) CheckApply(apply bool) (bool, error) {
 	// List any container whose name matches this resource.
 	opts := types.ContainerListOptions{
 		All:     true,
-		Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: obj.Name()}),
+		Filters: filters.NewArgs(filters.Arg("name", obj.Name())),
 	}
 	containerList, err := obj.client.ContainerList(ctx, opts)
 	if err != nil {
 		return false, errwrap.Wrapf(err, "error listing containers")
 	}
 
+	// this should never happen
 	if len(containerList) > 1 {
 		return false, fmt.Errorf("more than one container named %s", obj.Name())
 	}
 	if len(containerList) == 0 && obj.State == ContainerRemoved {
 		return true, nil
 	}
+
 	if len(containerList) == 1 {
-		// If the state and image are correct, we're done.
-		if containerList[0].State == obj.State && containerList[0].Image == obj.Image {
-			return true, nil
+		// inspect the container for all the gory volume/network details
+		ctr, err := obj.client.ContainerInspect(ctx, containerList[0].ID)
+		if err != nil {
+			return false, errwrap.Wrapf(err, "error inspecting container: %s", containerList[0].ID)
 		}
-		id = containerList[0].ID // save the id for later
-		// If the image is wrong, and force is true, mark the container for
-		// destruction.
-		if containerList[0].Image != obj.Image && obj.Force {
+
+		id = ctr.ID // save the id for later
+
+		// Check first all properties that require the container to be recreated
+		// in case we pointlessly change some properties, but destroy the
+		// container afterwards and recreate it correctly.
+		for name, fn := range cmpFns {
+			if !fn(ctr, obj) {
+				obj.init.Logf("recreating container: property '%s' does not match", name)
+				destroy = true
+				break
+			}
+		}
+
+		// environment check requires context for Docker API lookup
+		envEqual, err := obj.compareEnv(ctx, ctr.Image, ctr.Config.Env)
+		if err != nil || !envEqual {
 			destroy = true
 		}
-		// Otherwise return an error.
-		if containerList[0].Image != obj.Image && !obj.Force {
-			return false, fmt.Errorf("%s exists but has the wrong image: %s", obj.Name(), containerList[0].Image)
 
+		if !destroy && ctr.State.Status == ContainerRunning {
+			// Final checks are to ensure all updateable configurables are
+			// correct and don't need to be changed.
+			return obj.containerUpdate(ctx, id, apply)
+		}
+
+		// Return an error if the running state does not match and it cannot
+		// be updated without destroying the container.
+		if destroy && !obj.Force {
+			return false, fmt.Errorf("%s exists but the config does not match", obj.Name())
 		}
 	}
 
-	if !apply {
-		return false, nil
+	if !apply { // do nothing and inform whether we would have done something
+		return !destroy, nil
 	}
 
 	if obj.State == ContainerStopped { // container exists and should be stopped
@@ -288,14 +371,19 @@ func (obj *DockerContainerRes) CheckApply(apply bool) (bool, error) {
 
 		// set up port bindings
 		containerConfig := &container.Config{
-			Image:        obj.Image,
 			Cmd:          obj.Cmd,
-			Env:          obj.Env,
+			Domainname:   obj.Domainname,
+			Env:          util.StrMapKeyEqualValue(obj.Env),
 			ExposedPorts: make(map[nat.Port]struct{}),
+			Hostname:     obj.Hostname,
+			Image:        obj.Image,
+			User:         obj.User,
 		}
 
 		hostConfig := &container.HostConfig{
-			PortBindings: make(map[nat.Port][]nat.PortBinding),
+			Mounts:        obj.Volumes,
+			PortBindings:  make(map[nat.Port][]nat.PortBinding),
+			RestartPolicy: obj.restartPolicy,
 		}
 
 		for k, v := range obj.Ports {
@@ -320,16 +408,135 @@ func (obj *DockerContainerRes) CheckApply(apply bool) (bool, error) {
 	return false, obj.containerStart(ctx, id, types.ContainerStartOptions{})
 }
 
+var cmpFns = map[string]func(types.ContainerJSON, *DockerContainerRes) bool{
+	"image": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		return ctr.Config.Image == res.Image
+	},
+	"hostname": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		return res.Hostname == "" || ctr.Config.Hostname == res.Hostname
+	},
+	"domainname": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		return ctr.Config.Domainname == res.Domainname
+	},
+	"user": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		return ctr.Config.User == res.User
+	},
+	"cmd": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		// res.Cmd being nil indicates there is no cmd explicitly set.
+		return res.Cmd == nil || util.StrSliceEqual(ctr.Config.Cmd, res.Cmd)
+	},
+	"volumes": func(ctr types.ContainerJSON, res *DockerContainerRes) bool {
+		if len(res.Volumes) != len(ctr.Mounts) {
+			return false
+		}
+
+		for i, vol := range res.Volumes {
+			var mnt *mount.Mount = nil
+			// find the matching Mount to this Volume
+			for j := range ctr.HostConfig.Mounts {
+				if vol.Target == ctr.HostConfig.Mounts[j].Target {
+					mnt = &ctr.HostConfig.Mounts[j]
+					break
+				}
+			}
+			// Not found, or found but doesn't match
+			if mnt == nil || !reflect.DeepEqual(&res.Volumes[i], mnt) {
+				return false
+			}
+		}
+		return true
+	},
+}
+
+func (obj *DockerContainerRes) containerUpdate(ctx context.Context, id string, apply bool) (bool, error) {
+	changed := false
+
+	ctr, err := obj.client.ContainerInspect(ctx, id)
+	if err != nil {
+		return false, errwrap.Wrapf(err, "error inspecting container: %s", id)
+	}
+
+	// check properties that can be changed at runtime
+	if !ctr.HostConfig.RestartPolicy.IsSame(&obj.restartPolicy) {
+		if !apply {
+			return false, nil
+		}
+		obj.init.Logf("updating restart policy")
+		_, err = obj.client.ContainerUpdate(ctx, id, container.UpdateConfig{
+			RestartPolicy: obj.restartPolicy,
+		})
+		if err != nil {
+			return false, errwrap.Wrapf(err, "failed to update restart policy")
+		}
+		changed = true
+	}
+
+	return !changed, nil
+}
+
+// compareEnv compares the environment of the running container with the obj.Env excluding the environment set in the container backing image returning true if the running container environment matches the obj.Env
+func (obj *DockerContainerRes) compareEnv(ctx context.Context, image string, env []string) (bool, error) {
+	// get the image env to remove the vars set in the image
+	img, _, err := obj.client.ImageInspectWithRaw(ctx, image)
+	if err != nil {
+		return false, err
+	}
+
+	// []string{key=value} representation of the map[string]string
+	objEnv := util.StrMapKeyEqualValue(obj.Env)
+
+	var runningEnv []string
+	for _, envVar := range env {
+		// skip vars that are specified by the container and also not explicitly
+		// specified in the container config
+		if util.StrInList(envVar, img.ContainerConfig.Env) && !util.StrInList(envVar, objEnv) {
+			continue
+		}
+		runningEnv = append(runningEnv, envVar)
+	}
+
+	return util.StrSliceEqual(runningEnv, objEnv), nil
+}
+
+/*
+// compareLabels compares the Labels of the running container with the obj.Labels
+// excluding the Labels set in the container backing image returning
+// true if the running container Labels matches the obj.Labels
+func (obj *DockerContainerRes) compareLabels(ctx context.Context, image string, Labels []string) (bool, error) {
+	// get the image Labels to remove the vars set in the image
+	img, _, err := obj.client.ImageInspectWithRaw(ctx, image)
+	if err != nil {
+		return false, err
+	}
+
+	// []string{key=value} representation of the map[string]string
+	objLabels := util.StrMapKeyEqualValue(obj.Labels)
+
+	var runningLabels []string
+	for _, LabelsVar := range Labels {
+		// skip vars that are specified by the container and also not explicitly
+		// specified in the container config
+		if util.StrInList(LabelsVar, img.ContainerConfig.Labels) && !util.
+			StrInList(LabelsVar, objLabels) {
+			continue
+		}
+		runningLabels = append(runningLabels, LabelsVar)
+	}
+
+	return util.StrSliceEqual(runningLabels, objLabels), nil
+}
+*/
+
 // containerStart starts the specified container, and waits for it to start.
 func (obj *DockerContainerRes) containerStart(ctx context.Context, id string, opts types.ContainerStartOptions) error {
 	// Get an events channel for the container we're about to start.
 	eventOpts := types.EventsOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{Key: "container", Value: id}),
+		Filters: filters.NewArgs(filters.Arg("container", id)),
 	}
 	eventCh, errCh := obj.client.Events(ctx, eventOpts)
 	// Start the container.
 	if err := obj.client.ContainerStart(ctx, id, opts); err != nil {
-		return errwrap.Wrapf(err, "error starting container")
+		return err
 	}
 	// Wait for a message on eventChan that says the container has started.
 	select {
@@ -385,9 +592,9 @@ func (obj *DockerContainerRes) Cmp(r engine.Res) error {
 	if err := util.SortedStrSliceCompare(obj.Cmd, res.Cmd); err != nil {
 		return errwrap.Wrapf(err, "the Cmd field differs")
 	}
-	if err := util.SortedStrSliceCompare(obj.Env, res.Env); err != nil {
-		return errwrap.Wrapf(err, "tne Env field differs")
-	}
+	// if err := util.SortedStrSliceCompare(obj.Env, res.Env); err != nil {
+	// 	return errwrap.Wrapf(err, "tne Env field differs")
+	// }
 	if len(obj.Ports) != len(res.Ports) {
 		return fmt.Errorf("the Ports length differs")
 	}
@@ -440,7 +647,7 @@ func (obj *DockerContainerRes) AutoEdges() (engine.AutoEdge, error) {
 	}, nil
 }
 
-// Next returnes the next automatic edge.
+// Next returns the next automatic edge.
 func (obj *DockerContainerResAutoEdges) Next() []engine.ResUID {
 	if len(obj.UIDs) == 0 {
 		return nil
