@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/util"
 )
@@ -56,14 +57,14 @@ func TestScopeIndexesPush0(t *testing.T) {
 		})
 	}
 	{
-		b1 := &ExprBool{}
-		b2 := &ExprBool{}
-		b3 := &ExprBool{}
-		b4 := &ExprBool{}
-		b5 := &ExprBool{}
-		b6 := &ExprBool{}
-		b7 := &ExprBool{}
-		b8 := &ExprBool{}
+		b1 := &ast.ExprBool{}
+		b2 := &ast.ExprBool{}
+		b3 := &ast.ExprBool{}
+		b4 := &ast.ExprBool{}
+		b5 := &ast.ExprBool{}
+		b6 := &ast.ExprBool{}
+		b7 := &ast.ExprBool{}
+		b8 := &ast.ExprBool{}
 		testCases = append(testCases, test{
 			name: "simple push",
 			indexes: map[int][]interfaces.Expr{
@@ -97,14 +98,14 @@ func TestScopeIndexesPush0(t *testing.T) {
 		})
 	}
 	{
-		b1 := &ExprBool{}
-		b2 := &ExprBool{}
-		b3 := &ExprBool{}
-		b4 := &ExprBool{}
-		b5 := &ExprBool{}
-		b6 := &ExprBool{}
-		b7 := &ExprBool{}
-		b8 := &ExprBool{}
+		b1 := &ast.ExprBool{}
+		b2 := &ast.ExprBool{}
+		b3 := &ast.ExprBool{}
+		b4 := &ast.ExprBool{}
+		b5 := &ast.ExprBool{}
+		b6 := &ast.ExprBool{}
+		b7 := &ast.ExprBool{}
+		b8 := &ast.ExprBool{}
 		testCases = append(testCases, test{
 			name: "push with gaps",
 			indexes: map[int][]interfaces.Expr{

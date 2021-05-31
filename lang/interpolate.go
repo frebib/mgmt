@@ -20,6 +20,7 @@ package lang // TODO: move this into a sub package of lang/$name?
 import (
 	"fmt"
 
+	"github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/lang/interpolate"
 	"github.com/purpleidea/mgmt/util/errwrap"
@@ -68,13 +69,13 @@ func InterpolateRagel(str string, pos *Pos, data *interfaces.Data) (interfaces.E
 
 		switch t := term.(type) {
 		case interpolate.Literal:
-			expr := &ExprStr{
+			expr := &ast.ExprStr{
 				V: t.Value,
 			}
 			exprs = append(exprs, expr)
 
 		case interpolate.Variable:
-			expr := &ExprVar{
+			expr := &ast.ExprVar{
 				Name: t.Name,
 			}
 			exprs = append(exprs, expr)
@@ -85,7 +86,7 @@ func InterpolateRagel(str string, pos *Pos, data *interfaces.Data) (interfaces.E
 
 	// If we didn't find anything of value, we got an empty string...
 	if len(sequence) == 0 && str == "" { // be doubly sure...
-		expr := &ExprStr{
+		expr := &ast.ExprStr{
 			V: "",
 		}
 		exprs = append(exprs, expr)
@@ -205,7 +206,7 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 			args = append(args, arg)
 		}
 
-		return &ExprCall{
+		return &ast.ExprCall{
 			Name: node.Func, // name
 			Args: args,
 		}, nil
@@ -217,23 +218,23 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 
 		switch node.Typex {
 		case hilast.TypeBool:
-			return &ExprBool{
+			return &ast.ExprBool{
 				V: node.Value.(bool),
 			}, nil
 
 		case hilast.TypeString:
-			return &ExprStr{
+			return &ast.ExprStr{
 				V: node.Value.(string),
 			}, nil
 
 		case hilast.TypeInt:
-			return &ExprInt{
+			return &ast.ExprInt{
 				// node.Value is an int stored as an interface
 				V: int64(node.Value.(int)),
 			}, nil
 
 		case hilast.TypeFloat:
-			return &ExprFloat{
+			return &ast.ExprFloat{
 				V: node.Value.(float64),
 			}, nil
 
@@ -249,7 +250,7 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 		if data.Debug {
 			data.Logf("got variable access type: %+v", node)
 		}
-		return &ExprVar{
+		return &ast.ExprVar{
 			Name: node.Name,
 		}, nil
 
@@ -284,7 +285,7 @@ func concatExprListIntoCall(exprs []interfaces.Expr) (interfaces.Expr, error) {
 		return nil, fmt.Errorf("empty list")
 	}
 
-	operator := &ExprStr{
+	operator := &ast.ExprStr{
 		V: "+", // for PLUS this is a `+` character
 	}
 
@@ -313,7 +314,7 @@ func concatExprListIntoCall(exprs []interfaces.Expr) (interfaces.Expr, error) {
 		return nil, err
 	}
 
-	return &ExprCall{
+	return &ast.ExprCall{
 		// NOTE: if we don't set the data field we need Init() called on it!
 		Name: operatorFuncName, // concatenate the two strings with + operator
 		Args: []interfaces.Expr{
@@ -333,7 +334,7 @@ func simplifyExprList(exprs []interfaces.Expr) ([]interfaces.Expr, error) {
 
 	for _, x := range exprs {
 		switch v := x.(type) {
-		case *ExprStr:
+		case *ast.ExprStr:
 			if !last {
 				last = true
 				result = append(result, x)
@@ -342,7 +343,7 @@ func simplifyExprList(exprs []interfaces.Expr) ([]interfaces.Expr, error) {
 
 			// combine!
 			expr := result[len(result)-1] // there has to be at least one
-			str, ok := expr.(*ExprStr)
+			str, ok := expr.(*ast.ExprStr)
 			if !ok {
 				// programming error
 				return nil, fmt.Errorf("unexpected type (%T)", expr)
@@ -351,7 +352,7 @@ func simplifyExprList(exprs []interfaces.Expr) ([]interfaces.Expr, error) {
 			//last = true // redundant, it's already true
 			// ... and don't append, we've combined!
 
-		case *ExprVar:
+		case *ast.ExprVar:
 			last = false // the next one can't combine with me
 			result = append(result, x)
 

@@ -33,6 +33,7 @@ import (
 	"github.com/purpleidea/mgmt/engine/graph/autoedge"
 	"github.com/purpleidea/mgmt/engine/resources"
 	"github.com/purpleidea/mgmt/etcd"
+	"github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/funcs"
 	"github.com/purpleidea/mgmt/lang/funcs/vars"
 	"github.com/purpleidea/mgmt/lang/interfaces"
@@ -81,8 +82,8 @@ func (obj *edge) String() string {
 func TestAstFunc0(t *testing.T) {
 	scope := &interfaces.Scope{ // global scope
 		Variables: map[string]interfaces.Expr{
-			"hello":  &ExprStr{V: "world"},
-			"answer": &ExprInt{V: 42},
+			"hello":  &ast.ExprStr{V: "world"},
+			"answer": &ast.ExprInt{V: 42},
 		},
 		// all the built-in top-level, core functions enter here...
 		Functions: FuncPrefixToFunctionsScope(""), // runs funcs.LookupPrefix
@@ -560,9 +561,9 @@ func TestAstFunc1(t *testing.T) {
 	t.Logf("tests directory is: %s", dir)
 
 	variables := map[string]interfaces.Expr{
-		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi
+		"purpleidea": &ast.ExprStr{V: "hello world!"}, // james says hi
 		// TODO: change to a func when we can change hostname dynamically!
-		"hostname": &ExprStr{V: ""}, // NOTE: empty b/c not used
+		"hostname": &ast.ExprStr{V: ""}, // NOTE: empty b/c not used
 	}
 	consts := VarPrefixToVariablesScope(vars.ConstNamespace) // strips prefix!
 	addback := vars.ConstNamespace + interfaces.ModuleSep    // add it back...
@@ -1015,9 +1016,9 @@ func TestAstFunc2(t *testing.T) {
 	t.Logf("tests directory is: %s", dir)
 
 	variables := map[string]interfaces.Expr{
-		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi
+		"purpleidea": &ast.ExprStr{V: "hello world!"}, // james says hi
 		// TODO: change to a func when we can change hostname dynamically!
-		"hostname": &ExprStr{V: ""}, // NOTE: empty b/c not used
+		"hostname": &ast.ExprStr{V: ""}, // NOTE: empty b/c not used
 	}
 	consts := VarPrefixToVariablesScope(vars.ConstNamespace) // strips prefix!
 	addback := vars.ConstNamespace + interfaces.ModuleSep    // add it back...

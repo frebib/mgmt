@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/funcs"
 	"github.com/purpleidea/mgmt/lang/funcs/simple"
 	"github.com/purpleidea/mgmt/lang/funcs/simplepoly"
@@ -42,7 +43,7 @@ func FuncPrefixToFunctionsScope(prefix string) map[string]interfaces.Expr {
 		// simplepoly API's and avoid the double wrapping from the
 		// simple/simplepoly API's to the main function api and back.
 		if st, ok := x.(*simple.WrappedFunc); simple.DirectInterface && ok {
-			fn := &ExprFunc{
+			fn := &ast.ExprFunc{
 				Title: name,
 
 				Values: []*types.FuncValue{st.Fn}, // just one!
@@ -51,7 +52,7 @@ func FuncPrefixToFunctionsScope(prefix string) map[string]interfaces.Expr {
 			exprs[name] = fn
 			continue
 		} else if st, ok := x.(*simplepoly.WrappedFunc); simplepoly.DirectInterface && ok {
-			fn := &ExprFunc{
+			fn := &ast.ExprFunc{
 				Title: name,
 
 				Values: st.Fns,
@@ -60,7 +61,7 @@ func FuncPrefixToFunctionsScope(prefix string) map[string]interfaces.Expr {
 			continue
 		}
 
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Title: name,
 			// We need to pass in the constructor function, because
 			// we'll need more than one copy of this function if it
@@ -119,22 +120,22 @@ func ValueToExpr(val types.Value) (interfaces.Expr, error) {
 
 	switch x := val.(type) {
 	case *types.BoolValue:
-		expr = &ExprBool{
+		expr = &ast.ExprBool{
 			V: x.Bool(),
 		}
 
 	case *types.StrValue:
-		expr = &ExprStr{
+		expr = &ast.ExprStr{
 			V: x.Str(),
 		}
 
 	case *types.IntValue:
-		expr = &ExprInt{
+		expr = &ast.ExprInt{
 			V: x.Int(),
 		}
 
 	case *types.FloatValue:
-		expr = &ExprFloat{
+		expr = &ast.ExprFloat{
 			V: x.Float(),
 		}
 
@@ -149,12 +150,12 @@ func ValueToExpr(val types.Value) (interfaces.Expr, error) {
 			exprs = append(exprs, e)
 		}
 
-		expr = &ExprList{
+		expr = &ast.ExprList{
 			Elements: exprs,
 		}
 
 	case *types.MapValue:
-		kvs := []*ExprMapKV{}
+		kvs := []*ast.ExprMapKV{}
 
 		for k, v := range x.Map() {
 			kx, err := ValueToExpr(k)
@@ -165,39 +166,39 @@ func ValueToExpr(val types.Value) (interfaces.Expr, error) {
 			if err != nil {
 				return nil, err
 			}
-			kv := &ExprMapKV{
+			kv := &ast.ExprMapKV{
 				Key: kx,
 				Val: vx,
 			}
 			kvs = append(kvs, kv)
 		}
 
-		expr = &ExprMap{
+		expr = &ast.ExprMap{
 			KVs: kvs,
 		}
 
 	case *types.StructValue:
-		fields := []*ExprStructField{}
+		fields := []*ast.ExprStructField{}
 
 		for k, v := range x.Struct() {
 			fx, err := ValueToExpr(v)
 			if err != nil {
 				return nil, err
 			}
-			field := &ExprStructField{
+			field := &ast.ExprStructField{
 				Name:  k,
 				Value: fx,
 			}
 			fields = append(fields, field)
 		}
 
-		expr = &ExprStruct{
+		expr = &ast.ExprStruct{
 			Fields: fields,
 		}
 
 	case *types.FuncValue:
 		// TODO: this particular case is particularly untested!
-		expr = &ExprFunc{
+		expr = &ast.ExprFunc{
 			Title: "<func from ValueToExpr>", // TODO: change this?
 			// TODO: symmetrically, it would have used x.Func() here
 			Values: []*types.FuncValue{

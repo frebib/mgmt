@@ -24,6 +24,7 @@ import (
 	"sync"
 
 	"github.com/purpleidea/mgmt/gapi"
+	ast2 "github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/funcs/vars"
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/lang/unification"
@@ -266,9 +267,9 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	}
 
 	variables := map[string]interfaces.Expr{
-		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi
+		"purpleidea": &ast2.ExprStr{V: "hello world!"}, // james says hi
 		// TODO: change to a func when we can change hostname dynamically!
-		"hostname": &ExprStr{V: ""}, // NOTE: empty b/c not used
+		"hostname": &ast2.ExprStr{V: ""}, // NOTE: empty b/c not used
 	}
 	consts := VarPrefixToVariablesScope(vars.ConstNamespace) // strips prefix!
 	addback := vars.ConstNamespace + interfaces.ModuleSep    // add it back...

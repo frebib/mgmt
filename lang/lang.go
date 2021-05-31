@@ -23,6 +23,7 @@ import (
 	"sync"
 
 	"github.com/purpleidea/mgmt/engine"
+	ast2 "github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/funcs"
 	_ "github.com/purpleidea/mgmt/lang/funcs/core" // import so the funcs register
 	"github.com/purpleidea/mgmt/lang/funcs/vars"
@@ -167,9 +168,9 @@ func (obj *Lang) Init() error {
 	obj.ast = interpolated
 
 	variables := map[string]interfaces.Expr{
-		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi
+		"purpleidea": &ast2.ExprStr{V: "hello world!"}, // james says hi
 		// TODO: change to a func when we can change hostname dynamically!
-		"hostname": &ExprStr{V: obj.Hostname},
+		"hostname": &ast2.ExprStr{V: obj.Hostname},
 	}
 	consts := VarPrefixToVariablesScope(vars.ConstNamespace) // strips prefix!
 	addback := vars.ConstNamespace + interfaces.ModuleSep    // add it back...

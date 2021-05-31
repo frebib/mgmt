@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package lang // TODO: move this into a sub package of lang/$name?
+package ast // TODO: move this into a sub package of lang/$name?
 
 import (
 	"bytes"
@@ -3064,7 +3064,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 
 	isEmpty := true // assume empty (which should cause an error)
 
-	funcs := FuncPrefixToFunctionsScope(name) // runs funcs.LookupPrefix
+	funcs := lang.FuncPrefixToFunctionsScope(name) // runs funcs.LookupPrefix
 	if len(funcs) > 0 {
 		isEmpty = false
 	}
@@ -3100,7 +3100,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 	// XXX: consider using a virtual `append *` statement to combine these instead.
 	for _, p := range paths {
 		// we only want code from this prefix
-		prefix := CoreDir + name + "/"
+		prefix := lang.CoreDir + name + "/"
 		if !strings.HasPrefix(p, prefix) {
 			continue
 		}
@@ -3125,7 +3125,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 		reader := bytes.NewReader(b) // wrap the byte stream
 
 		// now run the lexer/parser to do the import
-		ast, err := LexParse(reader)
+		ast, err := lang.LexParse(reader)
 		if err != nil {
 			return nil, errwrap.Wrapf(err, "could not generate AST from import `%s`", name)
 		}
@@ -3207,7 +3207,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 // importScopeWithInputs returns a local or remote scope from an inputs string.
 // The inputs string is the common frontend for a lot of our parsing decisions.
 func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, parentVertex *pgraph.SelfVertex) (*interfaces.Scope, error) {
-	output, err := parseInput(s, obj.data.Fs)
+	output, err := lang.parseInput(s, obj.data.Fs)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not activate an input parser")
 	}
@@ -3239,7 +3239,7 @@ func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, pa
 	metadata.Metadata = obj.data.Metadata
 
 	// now run the lexer/parser to do the import
-	ast, err := LexParse(reader)
+	ast, err := lang.LexParse(reader)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not generate AST from import")
 	}
@@ -3358,7 +3358,7 @@ func (obj *StmtProg) SetScope(scope *interfaces.Scope) error {
 			return fmt.Errorf("import `%s` already exists in this scope", imp.Name)
 		}
 
-		result, err := ParseImportName(imp.Name)
+		result, err := lang.ParseImportName(imp.Name)
 		if err != nil {
 			return errwrap.Wrapf(err, "import `%s` is not valid", imp.Name)
 		}
@@ -4813,7 +4813,7 @@ func (obj *ExprStr) Init(data *interfaces.Data) error {
 // which need interpolation. If any are found, it returns a larger AST which has
 // a function which returns a string as its root. Otherwise it returns itself.
 func (obj *ExprStr) Interpolate() (interfaces.Expr, error) {
-	pos := &Pos{
+	pos := &lang.Pos{
 		// column/line number, starting at 1
 		//Column: -1, // TODO
 		//Line: -1, // TODO
@@ -4837,7 +4837,7 @@ func (obj *ExprStr) Interpolate() (interfaces.Expr, error) {
 			obj.data.Logf("interpolate: "+format, v...)
 		},
 	}
-	result, err := InterpolateStr(obj.V, pos, data)
+	result, err := lang.InterpolateStr(obj.V, pos, data)
 	if err != nil {
 		return nil, err
 	}

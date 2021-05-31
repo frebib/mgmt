@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/purpleidea/mgmt/engine"
+	ast2 "github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/util"
 	"github.com/purpleidea/mgmt/util/errwrap"
@@ -364,7 +365,7 @@ func CollectFiles(ast interfaces.Stmt) ([]string, error) {
 		if !ok {
 			return nil
 		}
-		prog, ok := stmt.(*StmtProg)
+		prog, ok := stmt.(*ast2.StmtProg)
 		if !ok {
 			return nil
 		}

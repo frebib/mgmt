@@ -26,6 +26,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/purpleidea/mgmt/lang/ast"
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/lang/types"
 	"github.com/purpleidea/mgmt/util"
@@ -56,11 +57,11 @@ func TestLexParse0(t *testing.T) {
 			name: "simple assignment",
 			code: `$rewsna = -42`,
 			fail: false,
-			exp: &StmtProg{
+			exp: &ast.StmtProg{
 				Prog: []interfaces.Stmt{
-					&StmtBind{
+					&ast.StmtBind{
 						Ident: "rewsna",
-						Value: &ExprInt{
+						Value: &ast.ExprInt{
 							V: -42,
 						},
 					},
@@ -359,11 +360,11 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "foo1",
 						Args: []interfaces.Expr{},
 					},
@@ -380,17 +381,17 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "foo1",
 						Args: []interfaces.Expr{
-							&ExprInt{
+							&ast.ExprInt{
 								V: 13,
 							},
-							&ExprStr{
+							&ast.ExprStr{
 								V: "hello",
 							},
 						},
@@ -408,11 +409,11 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "pkg.foo1",
 						Args: []interfaces.Expr{},
 					},
@@ -429,17 +430,17 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "pkg.foo1",
 						Args: []interfaces.Expr{
-							&ExprBool{
+							&ast.ExprBool{
 								V: true,
 							},
-							&ExprStr{
+							&ast.ExprStr{
 								V: "hello",
 							},
 						},
@@ -493,11 +494,11 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprVar{
+					Value: &ast.ExprVar{
 						Name: "pkg.foo1",
 					},
 				},
@@ -513,11 +514,11 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "x1",
-					Value: &ExprVar{
+					Value: &ast.ExprVar{
 						Name: "pkg.foo1.bar",
 					},
 				},
@@ -569,26 +570,26 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "+",
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 13,
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 42,
 									},
 								},
@@ -610,37 +611,37 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "float32",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "+",
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "+",
 											},
-											&ExprFloat{
+											&ast.ExprFloat{
 												V: -25.38789,
 											},
-											&ExprFloat{
+											&ast.ExprFloat{
 												V: 32.6,
 											},
 										},
 									},
-									&ExprFloat{
+									&ast.ExprFloat{
 										V: 13.7,
 									},
 								},
@@ -662,35 +663,35 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "+",
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 4,
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "*",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 3,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 12,
 											},
 										},
@@ -714,37 +715,37 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "+",
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "*",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 3,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 12,
 											},
 										},
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 4,
 									},
 								},
@@ -766,35 +767,35 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "*",
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 3,
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "+",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 12,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 4,
 											},
 										},
@@ -818,37 +819,37 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "boolptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: ">",
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "+",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 3,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 4,
 											},
 										},
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 5,
 									},
 								},
@@ -870,35 +871,35 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "boolptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: ">",
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 3,
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "+",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 4,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 5,
 											},
 										},
@@ -922,34 +923,34 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "boolptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: ">",
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "!",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 3,
 											},
 										},
 									},
-									&ExprInt{
+									&ast.ExprInt{
 										V: 4,
 									},
 								},
@@ -971,37 +972,37 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "boolptr",
-							Value: &ExprCall{
+							Value: &ast.ExprCall{
 								Name: operatorFuncName,
 								Args: []interfaces.Expr{
-									&ExprStr{
+									&ast.ExprStr{
 										V: "&&",
 									},
-									&ExprCall{
+									&ast.ExprCall{
 										Name: operatorFuncName,
 										Args: []interfaces.Expr{
-											&ExprStr{
+											&ast.ExprStr{
 												V: "<",
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 7,
 											},
-											&ExprInt{
+											&ast.ExprInt{
 												V: 4,
 											},
 										},
 									},
-									&ExprBool{
+									&ast.ExprBool{
 										V: true,
 									},
 								},
@@ -1023,48 +1024,48 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprInt{
+							Value: &ast.ExprInt{
 								V: 42,
 							},
 						},
 					},
 				},
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t2",
 					},
-					Contents: []StmtResContents{
-						&StmtResField{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResField{
 							Field: "int64ptr",
-							Value: &ExprInt{
+							Value: &ast.ExprInt{
 								V: 13,
 							},
 						},
 					},
 				},
-				&StmtEdge{
-					EdgeHalfList: []*StmtEdgeHalf{
+				&ast.StmtEdge{
+					EdgeHalfList: []*ast.StmtEdgeHalf{
 						{
 							Kind: "test",
-							Name: &ExprStr{
+							Name: &ast.ExprStr{
 								V: "t1",
 							},
 							SendRecv: "foosend",
 						},
 						{
 							Kind: "test",
-							Name: &ExprStr{
+							Name: &ast.ExprStr{
 								V: "t2",
 							},
 							SendRecv: "barrecv",
@@ -1090,75 +1091,75 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t1",
 					},
-					Contents: []StmtResContents{
-						&StmtResMeta{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResMeta{
 							Property: "noop",
-							MetaExpr: &ExprBool{
+							MetaExpr: &ast.ExprBool{
 								V: true,
 							},
 						},
-						&StmtResMeta{
+						&ast.StmtResMeta{
 							Property: "delay",
-							MetaExpr: &ExprInt{
+							MetaExpr: &ast.ExprInt{
 								V: 42,
 							},
-							Condition: &ExprBool{
+							Condition: &ast.ExprBool{
 								V: true,
 							},
 						},
 					},
 				},
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t2",
 					},
-					Contents: []StmtResContents{
-						&StmtResMeta{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResMeta{
 							Property: "limit",
-							MetaExpr: &ExprFloat{
+							MetaExpr: &ast.ExprFloat{
 								V: 0.45,
 							},
 						},
-						&StmtResMeta{
+						&ast.StmtResMeta{
 							Property: "burst",
-							MetaExpr: &ExprInt{
+							MetaExpr: &ast.ExprInt{
 								V: 4,
 							},
 						},
 					},
 				},
-				&StmtRes{
+				&ast.StmtRes{
 					Kind: "test",
-					Name: &ExprStr{
+					Name: &ast.ExprStr{
 						V: "t3",
 					},
-					Contents: []StmtResContents{
-						&StmtResMeta{
+					Contents: []ast.StmtResContents{
+						&ast.StmtResMeta{
 							Property: "noop",
-							MetaExpr: &ExprBool{
+							MetaExpr: &ast.ExprBool{
 								V: true,
 							},
 						},
-						&StmtResMeta{
+						&ast.StmtResMeta{
 							Property: "meta",
-							MetaExpr: &ExprStruct{
-								Fields: []*ExprStructField{
-									{Name: "poll", Value: &ExprInt{V: 5}},
-									{Name: "retry", Value: &ExprInt{V: 3}},
+							MetaExpr: &ast.ExprStruct{
+								Fields: []*ast.ExprStructField{
+									{Name: "poll", Value: &ast.ExprInt{V: 5}},
+									{Name: "retry", Value: &ast.ExprInt{V: 3}},
 									{
 										Name: "sema",
-										Value: &ExprList{
+										Value: &ast.ExprList{
 											Elements: []interfaces.Expr{
-												&ExprStr{V: "foo:1"},
-												&ExprStr{V: "bar:3"},
+												&ast.ExprStr{V: "foo:1"},
+												&ast.ExprStr{V: "bar:3"},
 											},
 										},
 									},
@@ -1217,21 +1218,21 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtRes{
+							&ast.StmtRes{
 								Kind: "test",
-								Name: &ExprStr{
+								Name: &ast.ExprStr{
 									V: "t1",
 								},
-								Contents: []StmtResContents{
-									&StmtResField{
+								Contents: []ast.StmtResContents{
+									&ast.StmtResField{
 										Field: "stringptr",
-										Value: &ExprStr{
+										Value: &ast.ExprStr{
 											V: "hello",
 										},
 									},
@@ -1240,7 +1241,7 @@ func TestLexParse0(t *testing.T) {
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 				},
 			},
@@ -1260,21 +1261,21 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtRes{
+							&ast.StmtRes{
 								Kind: "test",
-								Name: &ExprStr{
+								Name: &ast.ExprStr{
 									V: "t1",
 								},
-								Contents: []StmtResContents{
-									&StmtResField{
+								Contents: []ast.StmtResContents{
+									&ast.StmtResField{
 										Field: "stringptr",
-										Value: &ExprStr{
+										Value: &ast.ExprStr{
 											V: "hello",
 										},
 									},
@@ -1283,7 +1284,7 @@ func TestLexParse0(t *testing.T) {
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "pkg.c1",
 				},
 			},
@@ -1305,21 +1306,21 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtRes{
+							&ast.StmtRes{
 								Kind: "test",
-								Name: &ExprStr{
+								Name: &ast.ExprStr{
 									V: "t1",
 								},
-								Contents: []StmtResContents{
-									&StmtResField{
+								Contents: []ast.StmtResContents{
+									&ast.StmtResField{
 										Field: "stringptr",
-										Value: &ExprStr{
+										Value: &ast.ExprStr{
 											V: "hello",
 										},
 									},
@@ -1328,7 +1329,7 @@ func TestLexParse0(t *testing.T) {
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "pkg.ns.c1",
 				},
 			},
@@ -1412,23 +1413,23 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "x",
 					Args: []*interfaces.Arg{},
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{},
 					},
 				},
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "y1",
 					Args: []*interfaces.Arg{},
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "z",
 					Args: nil,
 				},
@@ -1458,9 +1459,9 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
 					Args: []*interfaces.Arg{
 						{
@@ -1472,17 +1473,17 @@ func TestLexParse0(t *testing.T) {
 							//Type: &types.Type{},
 						},
 					},
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtRes{
+							&ast.StmtRes{
 								Kind: "test",
-								Name: &ExprVar{
+								Name: &ast.ExprVar{
 									Name: "a",
 								},
-								Contents: []StmtResContents{
-									&StmtResField{
+								Contents: []ast.StmtResContents{
+									&ast.StmtResField{
 										Field: "stringptr",
-										Value: &ExprVar{
+										Value: &ast.ExprVar{
 											Name: "b",
 										},
 									},
@@ -1491,24 +1492,24 @@ func TestLexParse0(t *testing.T) {
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 					Args: []interfaces.Expr{
-						&ExprStr{
+						&ast.ExprStr{
 							V: "t1",
 						},
-						&ExprStr{
+						&ast.ExprStr{
 							V: "hello",
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 					Args: []interfaces.Expr{
-						&ExprStr{
+						&ast.ExprStr{
 							V: "t2",
 						},
-						&ExprStr{
+						&ast.ExprStr{
 							V: "world",
 						},
 					},
@@ -1531,9 +1532,9 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
 					Args: []*interfaces.Arg{
 						{
@@ -1545,17 +1546,17 @@ func TestLexParse0(t *testing.T) {
 							//Type: &types.Type{},
 						},
 					},
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtRes{
+							&ast.StmtRes{
 								Kind: "test",
-								Name: &ExprVar{
+								Name: &ast.ExprVar{
 									Name: "a",
 								},
-								Contents: []StmtResContents{
-									&StmtResField{
+								Contents: []ast.StmtResContents{
+									&ast.StmtResField{
 										Field: "stringptr",
-										Value: &ExprVar{
+										Value: &ast.ExprVar{
 											Name: "b",
 										},
 									},
@@ -1564,24 +1565,24 @@ func TestLexParse0(t *testing.T) {
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 					Args: []interfaces.Expr{
-						&ExprStr{
+						&ast.ExprStr{
 							V: "t1",
 						},
-						&ExprStr{
+						&ast.ExprStr{
 							V: "hello",
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 					Args: []interfaces.Expr{
-						&ExprStr{
+						&ast.ExprStr{
 							V: "t2",
 						},
-						&ExprStr{
+						&ast.ExprStr{
 							V: "world",
 						},
 					},
@@ -1604,9 +1605,9 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo1",
 					Alias: "",
 				},
@@ -1622,9 +1623,9 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo1",
 					Alias: "bar",
 				},
@@ -1640,17 +1641,17 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo1",
 					Alias: "",
 				},
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo2",
 					Alias: "bar",
 				},
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo3",
 					Alias: "",
 				},
@@ -1668,9 +1669,9 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtImport{
+				&ast.StmtImport{
 					Name:  "foo1",
 					Alias: "*",
 				},
@@ -1686,24 +1687,24 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtClass{
+				&ast.StmtClass{
 					Name: "c1",
-					Body: &StmtProg{
+					Body: &ast.StmtProg{
 						Prog: []interfaces.Stmt{
-							&StmtImport{
+							&ast.StmtImport{
 								Name:  "foo",
 								Alias: "bar",
 							},
-							&StmtImport{
+							&ast.StmtImport{
 								Name:  "baz",
 								Alias: "",
 							},
 						},
 					},
 				},
-				&StmtInclude{
+				&ast.StmtInclude{
 					Name: "c1",
 				},
 			},
@@ -1722,13 +1723,13 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtFunc{
+				&ast.StmtFunc{
 					Name: "f1",
-					Func: &ExprFunc{
+					Func: &ast.ExprFunc{
 						Args: []*interfaces.Arg{},
-						Body: &ExprInt{
+						Body: &ast.ExprInt{
 							V: 42,
 						},
 					},
@@ -1747,19 +1748,19 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args:   []*interfaces.Arg{},
 			Return: types.TypeInt,
-			Body: &ExprCall{
+			Body: &ast.ExprCall{
 				Name: operatorFuncName,
 				Args: []interfaces.Expr{
-					&ExprStr{
+					&ast.ExprStr{
 						V: "+",
 					},
-					&ExprInt{
+					&ast.ExprInt{
 						V: 13,
 					},
-					&ExprInt{
+					&ast.ExprInt{
 						V: 42,
 					},
 				},
@@ -1769,9 +1770,9 @@ func TestLexParse0(t *testing.T) {
 		if err := fn.SetType(types.NewType("func() int")); err != nil {
 			t.Fatal("could not build type")
 		}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtFunc{
+				&ast.StmtFunc{
 					Name: "f2",
 					Func: fn,
 				},
@@ -1789,7 +1790,7 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args: []*interfaces.Arg{
 				{
 					Name: "a",
@@ -1801,16 +1802,16 @@ func TestLexParse0(t *testing.T) {
 				},
 			},
 			Return: types.TypeInt,
-			Body: &ExprCall{
+			Body: &ast.ExprCall{
 				Name: operatorFuncName,
 				Args: []interfaces.Expr{
-					&ExprStr{
+					&ast.ExprStr{
 						V: "+",
 					},
-					&ExprVar{
+					&ast.ExprVar{
 						Name: "a",
 					},
-					&ExprVar{
+					&ast.ExprVar{
 						Name: "b",
 					},
 				},
@@ -1820,9 +1821,9 @@ func TestLexParse0(t *testing.T) {
 		//if err := fn.SetType(types.NewType("func() int")); err != nil {
 		//	t.Fatal("could not build type")
 		//}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtFunc{
+				&ast.StmtFunc{
 					Name: "f3",
 					Func: fn,
 				},
@@ -1840,7 +1841,7 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args: []*interfaces.Arg{
 				{
 					Name: "x",
@@ -1848,16 +1849,16 @@ func TestLexParse0(t *testing.T) {
 				},
 			},
 			Return: types.TypeStr,
-			Body: &ExprCall{
+			Body: &ast.ExprCall{
 				Name: operatorFuncName,
 				Args: []interfaces.Expr{
-					&ExprStr{
+					&ast.ExprStr{
 						V: "+",
 					},
-					&ExprStr{
+					&ast.ExprStr{
 						V: "hello",
 					},
-					&ExprVar{
+					&ast.ExprVar{
 						Name: "x",
 					},
 				},
@@ -1866,9 +1867,9 @@ func TestLexParse0(t *testing.T) {
 		if err := fn.SetType(types.NewType("func(x str) str")); err != nil {
 			t.Fatal("could not build type")
 		}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtFunc{
+				&ast.StmtFunc{
 					Name: "f4",
 					Func: fn,
 				},
@@ -1887,15 +1888,15 @@ func TestLexParse0(t *testing.T) {
 	}
 	{
 
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args: []*interfaces.Arg{},
-			Body: &ExprInt{
+			Body: &ast.ExprInt{
 				V: 42,
 			},
 		}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "fn",
 					Value: fn,
 				},
@@ -1914,7 +1915,7 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args: []*interfaces.Arg{
 				{
 					Name: "x",
@@ -1922,16 +1923,16 @@ func TestLexParse0(t *testing.T) {
 				},
 			},
 			Return: types.TypeStr,
-			Body: &ExprCall{
+			Body: &ast.ExprCall{
 				Name: operatorFuncName,
 				Args: []interfaces.Expr{
-					&ExprStr{
+					&ast.ExprStr{
 						V: "+",
 					},
-					&ExprStr{
+					&ast.ExprStr{
 						V: "hello",
 					},
-					&ExprVar{
+					&ast.ExprVar{
 						Name: "x",
 					},
 				},
@@ -1940,9 +1941,9 @@ func TestLexParse0(t *testing.T) {
 		if err := fn.SetType(types.NewType("func(x str) str")); err != nil {
 			t.Fatal("could not build type")
 		}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "fn",
 					Value: fn,
 				},
@@ -1961,7 +1962,7 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		fn := &ExprFunc{
+		fn := &ast.ExprFunc{
 			Args: []*interfaces.Arg{
 				{
 					Name: "x",
@@ -1969,16 +1970,16 @@ func TestLexParse0(t *testing.T) {
 				},
 			},
 			Return: types.TypeStr,
-			Body: &ExprCall{
+			Body: &ast.ExprCall{
 				Name: operatorFuncName,
 				Args: []interfaces.Expr{
-					&ExprStr{
+					&ast.ExprStr{
 						V: "+",
 					},
-					&ExprStr{
+					&ast.ExprStr{
 						V: "hello",
 					},
-					&ExprVar{
+					&ast.ExprVar{
 						Name: "x",
 					},
 				},
@@ -1987,18 +1988,18 @@ func TestLexParse0(t *testing.T) {
 		if err := fn.SetType(types.NewType("func(x str) str")); err != nil {
 			t.Fatal("could not build type")
 		}
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "fn",
 					Value: fn,
 				},
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "foo",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "fn",
 						Args: []interfaces.Expr{
-							&ExprStr{
+							&ast.ExprStr{
 								V: "world",
 							},
 						},
@@ -2021,33 +2022,33 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		exp := &StmtProg{
+		exp := &ast.StmtProg{
 			Prog: []interfaces.Stmt{
-				&StmtFunc{
+				&ast.StmtFunc{
 					Name: "funcgen",
 					// This is the outer function...
-					Func: &ExprFunc{
+					Func: &ast.ExprFunc{
 						Args: []*interfaces.Arg{},
 						// This is the inner function...
-						Body: &ExprFunc{
+						Body: &ast.ExprFunc{
 							Args: []*interfaces.Arg{},
-							Body: &ExprStr{
+							Body: &ast.ExprStr{
 								V: "hello",
 							},
 						},
 					},
 				},
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "fn",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "funcgen",
 						Args: []interfaces.Expr{},
 						Var:  false,
 					},
 				},
-				&StmtBind{
+				&ast.StmtBind{
 					Ident: "foo",
-					Value: &ExprCall{
+					Value: &ast.ExprCall{
 						Name: "fn",
 						Args: []interfaces.Expr{},
 						Var:  true, // comes from a var
