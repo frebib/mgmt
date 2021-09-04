@@ -27,6 +27,7 @@ A next generation config management prototype!
 %setup -q
 
 %build
+go mod download
 make build
 
 %install
