@@ -26,8 +26,8 @@ import (
 	"github.com/purpleidea/mgmt/util"
 	"github.com/purpleidea/mgmt/util/errwrap"
 
-	etcd "go.etcd.io/etcd/clientv3" // "clientv3"
-	pb "go.etcd.io/etcd/etcdserver/etcdserverpb"
+	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
+	etcd "go.etcd.io/etcd/client/v3" // "client/v3"
 )
 
 // nominateApply applies the changed watcher data onto our local caches.
@@ -306,7 +306,7 @@ func (obj *EmbdEtcd) volunteerCb(ctx context.Context) error {
 
 	// NOTE: There used to be an is_leader check right here...
 	// FIXME: Should we use WithRequireLeader instead? Here? Elsewhere?
-	// https://godoc.org/github.com/etcd-io/etcd/clientv3#WithRequireLeader
+	// https://godoc.org/github.com/etcd-io/etcd/client/v3#WithRequireLeader
 
 	// FIXME: can this happen, and if so, is it an error or a pass-through?
 	if len(obj.volunteers) == 0 {

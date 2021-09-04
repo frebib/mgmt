@@ -151,7 +151,7 @@ lang: ## generates the lexer/parser for the language frontend
 
 # build a `mgmt` binary for current host os/arch
 $(PROGRAM): build/mgmt-${GOHOSTOS}-${GOHOSTARCH} ## build an mgmt binary for current host os/arch
-	cp -a $< $@
+	@cp -a $< $@
 
 $(PROGRAM).static: $(GO_FILES) $(MCL_FILES)
 	@echo "Building: $(PROGRAM).static, version: $(SVERSION)..."
@@ -170,7 +170,7 @@ GOOS=$(firstword $(subst -, ,$*))
 GOARCH=$(lastword $(subst -, ,$*))
 build/mgmt-%: $(GO_FILES) $(MCL_FILES) | bindata lang funcgen
 	@echo "Building: $(PROGRAM), os/arch: $*, version: $(SVERSION)..."
-	@time env GOOS=${GOOS} GOARCH=${GOARCH} go build -i -ldflags=$(PKGNAME)="-X main.program=$(PROGRAM) -X main.version=$(SVERSION) ${LDFLAGS}" -o $@ $(BUILD_FLAGS)
+	@time env GOOS=${GOOS} GOARCH=${GOARCH} go build -ldflags=$(PKGNAME)="-X main.program=$(PROGRAM) -X main.version=$(SVERSION) ${LDFLAGS}" -o $@ $(BUILD_FLAGS)
 
 # create a list of binary file names to use as make targets
 crossbuild_targets = $(addprefix build/mgmt-,$(subst /,-,${GOOSARCHES}))
