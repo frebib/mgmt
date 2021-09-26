@@ -115,7 +115,7 @@ func (obj *Lang) Init() error {
 	// run the lexer/parser and build an AST
 	obj.Logf("lexing/parsing...")
 	// this reads an io.Reader, which might be a stream of multiple files...
-	ast, err := LexParse(reader)
+	ast, err := LexParse(reader, 0)
 	if err != nil {
 		return errwrap.Wrapf(err, "could not generate AST")
 	}

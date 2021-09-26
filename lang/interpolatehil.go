@@ -35,21 +35,13 @@ import (
 	hilast "github.com/hashicorp/hil/ast"
 )
 
-// Pos represents a position in the code.
-// TODO: consider expanding with range characteristics.
-type Pos struct {
-	Line     int    // line number starting at 1
-	Column   int    // column number starting at 1
-	Filename string // optional source filename, if known
-}
-
 // InterpolateStr interpolates a string and returns the representative AST. This
 // particular implementation uses the hashicorp hil library and syntax to do so.
-func InterpolateStr(str string, pos *Pos) (interfaces.Expr, error) {
+func InterpolateStr(str string, pos interfaces.Pos) (interfaces.Expr, error) {
 	hilPos := hilast.Pos{
-		Line:     line,
-		Column:   column,
-		Filename: filename,
+		Line:     pos.Line,
+		Column:   pos.Column,
+		Filename: pos.Filename,
 	}
 	// should not error on plain strings
 	tree, err := hil.ParseWithPosition(str, hilPos)

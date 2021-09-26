@@ -1,388 +1,121 @@
-/[ \t\n]/	{ /* skip over whitespace */ }
-/{/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return OPEN_CURLY
-		}
-/}/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return CLOSE_CURLY
-		}
-/\(/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return OPEN_PAREN
-		}
-/\)/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return CLOSE_PAREN
-		}
-/\[/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return OPEN_BRACK
-		}
-/\]/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return CLOSE_BRACK
-		}
-/if/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return IF
-		}
-/else/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return ELSE
-		}
-/\?:/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return ELVIS
-		}
-/=>/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return ROCKET
-		}
-/,/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return COMMA
-		}
-/:/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return COLON
-		}
-/;/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return SEMICOLON
-		}
-/=/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return EQUALS
-		}
-/\+/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return PLUS
-		}
-/\-/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return MINUS
-		}
-/\*/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return MULTIPLY
-		}
-/\//		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return DIVIDE
-		}
-/==/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return EQ
-		}
-/!=/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return NEQ
-		}
-/</		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return LT
-		}
-/>/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return GT
-		}
-/<=/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return LTE
-		}
-/>=/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return GTE
-		}
-/&&/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return AND
-		}
-/\|\|/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return OR
-		}
-/!/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return NOT
-		}
-/in/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return IN
-		}
-/\->/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return ARROW
-		}
-/\./		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			// sanity check... these should be the same!
-			if x, y := lval.str, interfaces.ModuleSep; x != y {
-				panic(fmt.Sprintf("DOT does not match ModuleSep (%s != %s)", x, y))
-			}
-			return DOT
-		}
-/\$/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return DOLLAR
-		}
-/bool/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return BOOL_IDENTIFIER
-		}
-/str/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return STR_IDENTIFIER
-		}
-/int/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return INT_IDENTIFIER
-		}
-/float/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return FLOAT_IDENTIFIER
-		}
-/map/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return MAP_IDENTIFIER
-		}
-/struct/	{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return STRUCT_IDENTIFIER
-		}
-/func/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return FUNC_IDENTIFIER
-		}
-/class/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return CLASS_IDENTIFIER
-		}
-/include/	{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return INCLUDE_IDENTIFIER
-		}
-/import/	{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return IMPORT_IDENTIFIER
-		}
-/as/		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return AS_IDENTIFIER
-		}
-/variant/	{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return VARIANT_IDENTIFIER
-		}
-/true|false/	{
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			if s == "true" {
-				lval.bool = true
-			} else if s == "false" {
-				lval.bool = false
-			} else {
-				// the lexer was wrong
-				panic(fmt.Sprintf("error lexing BOOL, got: %s", s))
-			}
-			return BOOL
-		}
-/"(\\.|[^"])*"/
-		{	// This matches any number of the bracketed patterns
-			// that are surrounded by the two quotes on each side.
-			// The bracket pattern is any escaped char or something
-			// that is not a single quote char. See this reference:
-			// https://www.lysator.liu.se/c/ANSI-C-grammar-l.html#STRING-LITERAL
-			// old: /"[\a\b\t\n\v\f\r !#$%&'()*+,-.\/0-9:;<=>?@A-Z\[\\\]^_a-z{|}~]*"/
+/[ \t]/
+	{ /* skip over whitespace */ }
+/[\r\n]/
+	{ return Newline }
 
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
+/{/
+	{ return OpenBrace }
+/}/
+	{ return CloseBrace }
+/\(/
+	{ return OpenParen }
+/\)/
+	{ return CloseParen }
+/\[/
+	{ return OpenBracket }
+/\]/
+	{ return CloseBracket }
 
-			if s[0:1] != "\"" || s[len(s)-1:] != "\"" {
-				// unhandled error
-				panic(fmt.Sprintf("error lexing STRING, got: %s", s))
-				//return ERROR // unreachable
-			}
+/,/
+	{ return Comma }
+/;/
+	{ return Semicolon }
+/:/
+	{ return Colon }
+/==/
+	{ return Equal }
+/!=/
+	{ return NotEqual }
+/=/
+	{ return Assign }
+/\+/
+	{ return Plus }
+/\-/
+	{ return Dash }
+/\*/
+	{ return Star }
+/\//
+	{ return Slash }
+/</
+	{ return LessThan }
+/>/
+	{ return GreaterThan }
+/<=/
+	{ return LessEqual }
+/>=/
+	{ return GreaterEqual }
+/&&/
+	{ return And }
+/\|\|/
+	{ return Or }
+/\?:/
+	{ return Elvis }
+/=>/
+	{ return Rocket }
+/\->/
+	{ return Arrow }
+/!/
+	{ return Not }
+/\./
+	{ return Dot }
+/\$/
+	{ return Dollar }
 
-			lval.str = s[1:len(s)-1] // remove the two quotes
-			return STRING
-		}
-/\-?[0-9]+/
-		{
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			var err error
-			lval.int, err = strconv.ParseInt(s, 10, 64) // int64
-			if err == nil {
-				return INTEGER
-			} else if e := err.(*strconv.NumError); e.Err == strconv.ErrRange {
-				// this catches range errors for very large ints
-				lp := yylex.cast()
-				lp.lexerErr = &LexParseErr{
-					Err: ErrLexerIntegerOverflow,
-					Str: s,
-					Row: yylex.Line(),
-					Col: yylex.Column(),
-				}
-				return ERROR
-			} else {
-				panic(fmt.Sprintf("error lexing INTEGER, got: %v", err))
-			}
-		}
-/\-?[0-9]+\.[0-9]+/
-		{
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			var err error
-			lval.float, err = strconv.ParseFloat(s, 64) // float64
-			if err == nil {
-				return FLOAT
-			} else if e := err.(*strconv.NumError); e.Err == strconv.ErrRange {
-				// this catches range errors for very large floats
-				lp := yylex.cast()
-				lp.lexerErr = &LexParseErr{
-					Err: ErrLexerFloatOverflow,
-					Str: s,
-					Row: yylex.Line(),
-					Col: yylex.Column(),
-				}
-				return ERROR
-			} else {
-				panic(fmt.Sprintf("error lexing FLOAT, got: %v", err))
-			}
-		}
-/\$[a-z]+([a-z0-9_]*[a-z0-9]+)?{[0-9]+}/
-		{
-			// we have this as a single token, because otherwise the
-			// parser can get confused by the curly brackets :/
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			s = s[1:len(s)] // remove the leading $
-			s = s[0:len(s)-1] // remove the trailing close curly
-			// XXX: nex has a bug that it gets confused by the
-			// following single curly brace. Please see:
-			// https://github.com/blynn/nex/issues/48
-			a := strings.Split(s, "{") // XXX: close match here: }
-			if len(a) != 2 {
-				panic(fmt.Sprintf("error lexing VAR_IDENTIFIER_HX: %v", a))
-			}
-			lval.str = a[0]
-			var err error
-			lval.int, err = strconv.ParseInt(a[1], 10, 64) // int64
-			if err == nil {
-				return VAR_IDENTIFIER_HX
-			} else if e := err.(*strconv.NumError); e.Err == strconv.ErrRange {
-				// this catches range errors for very large ints
-				lp := yylex.cast()
-				lp.lexerErr = &LexParseErr{
-					Err: ErrLexerIntegerOverflow,
-					Str: a[1],
-					Row: yylex.Line(),
-					Col: yylex.Column(),
-				}
-				return ERROR
-			} else {
-				panic(fmt.Sprintf("error lexing VAR_IDENTIFIER_HX, got: %v", err))
-			}
-		}
-/\$[a-z]([a-z0-9_]*[a-z0-9]+)?/
-		{
-			// an alternate pattern: /\$[a-z](|[a-z0-9_]*[a-z0-9])/
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			lval.str = s[1:len(s)] // remove the leading $
-			return VAR_IDENTIFIER
-		}
-/[a-z]([a-z0-9_]*[a-z0-9]+)?/
-		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return IDENTIFIER
-		}
-/[A-Z]([a-z0-9_]*[a-z0-9]+)?/
-		{
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			lval.str = strings.ToLower(s) // uncapitalize it
-			return CAPITALIZED_IDENTIFIER
-		}
-/[a-z]([a-z0-9:]*[a-z0-9]+)?/
-		{
-			yylex.pos(lval) // our pos
-			lval.str = yylex.Text()
-			return RES_IDENTIFIER
-		}
+/if/
+	{ return If }
+/else/
+	{ return Else }
+/in/
+	{ return In }
+/as/
+	{ return As }
+/class/
+	{ return Class }
+/include/
+	{ return Include }
+/import/
+	{ return Import }
+/func/
+	{ return Func }
+
+/bool/
+	{ return Bool }
+/str/
+	{ return Str }
+/int/
+	{ return Int }
+/float/
+	{ return Float }
+/map/
+	{ return Map }
+/struct/
+	{ return Struct }
+/variant/
+	{ return Variant }
+/true/
+	{ return True }
+/false/
+	{ return False }
+
 /#[^\n]*/
-		{	// this matches a (#) pound char followed by any
-			// number of chars that aren't the (\n) newline!
+	{ return Comment }
+/"(\\.|[^"])*"/
+	{ return LiteralStr }
+/\-?[0-9]+/
+	{ return LiteralInt }
+/\-?[0-9]+\.[0-9]+/
+	{ return LiteralFloat }
 
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
+/[a-z]([a-z0-9_]*[a-z0-9]+)?/
+	{ return Identifier }
+/[A-Z]([a-z0-9_]*[a-z0-9]+)?/
+	{ return CapitalizedIdentifier }
+/[a-z]([a-z0-9:]*[a-z0-9]+)?/
+	{ return ResIdentifier }
 
-			lval.str = s[1:len(s)] // remove the leading #
-			//log.Printf("lang: lexer: comment: `%s`", lval.str)
-			//return COMMENT // skip return to avoid parsing
-		}
-/./		{
-			yylex.pos(lval) // our pos
-			s := yylex.Text()
-			lp := yylex.cast()
-			e := ErrLexerUnrecognized
-			if s == "\r" { // windows!
-				e = ErrLexerUnrecognizedCR
-			}
-			lp.lexerErr = &LexParseErr{
-				Err: e,
-				Str: s,
-				Row: yylex.Line(),
-				Col: yylex.Column(),
-			}
-			return ERROR
-		}
+/./
+	{ return Unexpected }
+
 //
 
 // Mgmt
@@ -404,12 +137,7 @@
 
 package lang
 
-import (
-	"fmt"
-	"strconv"
-
-	"github.com/purpleidea/mgmt/lang/interfaces"
-)
+type mclSymType struct {}
 
 // NOTE:
 // Among rules in the same scope, the longest matching pattern takes precedence.

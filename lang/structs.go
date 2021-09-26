@@ -2075,12 +2075,18 @@ type StmtEdgeHalf struct {
 	Kind     string          // kind of resource, eg: pkg, file, svc, etc...
 	Name     interfaces.Expr // unique name for the res of this kind
 	SendRecv string          // name of field to send/recv from/to, empty to ignore
+	pos      interfaces.Pos  // position in source
 }
 
 // String returns a short representation of this statement.
 func (obj *StmtEdgeHalf) String() string {
 	// TODO: add .String() for Name
 	return fmt.Sprintf("edgehalf(%s)", obj.Kind)
+}
+
+// Pos returns the position of the token in source
+func (obj *StmtEdgeHalf) Pos() interfaces.Pos {
+	return obj.pos
 }
 
 // Apply is a general purpose iterator method that operates on any AST node. It
@@ -2921,7 +2927,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 		reader := bytes.NewReader(b) // wrap the byte stream
 
 		// now run the lexer/parser to do the import
-		ast, err := LexParse(reader)
+		ast, err := LexParse(reader, 0)
 		if err != nil {
 			return nil, errwrap.Wrapf(err, "could not generate AST from import `%s`", name)
 		}
@@ -3028,7 +3034,7 @@ func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, pa
 	metadata.Metadata = obj.data.Metadata
 
 	// now run the lexer/parser to do the import
-	ast, err := LexParse(reader)
+	ast, err := LexParse(reader, 0)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not generate AST from import")
 	}
@@ -6354,6 +6360,13 @@ func (obj *ExprFunc) SetScope(scope *interfaces.Scope) error {
 func (obj *ExprFunc) SetType(typ *types.Type) error {
 	if obj.Body != nil {
 		// FIXME: check that it's compatible with Args/Body/Return
+		actual, err := obj.Body.Type()
+		// Ignore failures in getting Body type for now
+		if err == nil {
+			if err := actual.Cmp(typ.Out); err != nil {
+				return err
+			}
+		}
 	}
 
 	// TODO: should we ensure this is set to a KindFunc ?

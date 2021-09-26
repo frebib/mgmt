@@ -18,8 +18,11 @@
 package lang
 
 import (
+	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 
@@ -188,9 +191,60 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	// TODO: do the paths need to be cleaned for "../" before comparison?
 
 	logf("lexing/parsing...")
-	ast, err := LexParse(bytes.NewReader(output.Main))
+	ast, err := LexParse(bytes.NewReader(output.Main), 0)
 	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not generate AST")
+		var parseErr *ParseError
+		if !errors.As(err, &parseErr) {
+			return nil, err
+		}
+
+		context := 2
+		pos := parseErr.Pos
+		// line numbers are 1-indexed, so subtract 1
+		before := pos.Line - context - 1
+		if before < 0 {
+			before = 0
+		}
+
+		rd := bytes.NewReader(output.Main)
+		scan := bufio.NewScanner(rd)
+		scan.Scan()
+
+		for i := 0; before > i; i++ {
+			if !scan.Scan() {
+				log.Println(scan.Err().Error())
+				return nil, err
+			}
+		}
+
+		precontext := context
+		if context > pos.Line-1 {
+			precontext = pos.Line
+		}
+
+		pointer := "^"
+		if pos.Length > 0 {
+			pointer = strings.Repeat(pointer, pos.Length)
+		}
+
+		buf := new(bytes.Buffer)
+		fmt.Fprintf(buf, "\n  Syntax error: %s\n\n", err)
+		for i := 0; i < precontext+1; i++ {
+			fmt.Fprintf(buf, "%4d │ %s\n", before+1+i, scan.Text())
+			if !scan.Scan() {
+				break
+			}
+		}
+		fmt.Fprintf(buf, "     │ %s%s\n", strings.Repeat(" ", pos.Column-1), pointer)
+		for i := 1; i < context+1; i++ {
+			fmt.Fprintf(buf, "%4d │ %s\n", pos.Line+i, scan.Text())
+			if !scan.Scan() {
+				break
+			}
+		}
+		fmt.Println(buf)
+
+		return nil, err
 	}
 	if debug {
 		logf("behold, the AST: %+v", ast)
@@ -654,7 +708,7 @@ func (obj *GAPI) Get(getInfo *gapi.GetInfo) error {
 	// TODO: do the paths need to be cleaned for "../" before comparison?
 
 	logf("lexing/parsing...")
-	ast, err := LexParse(bytes.NewReader(output.Main))
+	ast, err := LexParse(bytes.NewReader(output.Main), 0)
 	if err != nil {
 		return errwrap.Wrapf(err, "could not generate AST")
 	}

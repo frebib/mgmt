@@ -436,7 +436,7 @@ func TestAstFunc0(t *testing.T) {
 
 			t.Logf("\n\ntest #%d (%s) ----------------\n\n", index, name)
 			str := strings.NewReader(code)
-			ast, err := LexParse(str)
+			ast, err := LexParse(str, 0)
 			if err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: lex/parse failed with: %+v", index, err)
@@ -770,7 +770,7 @@ func TestAstFunc1(t *testing.T) {
 			logf("main:\n%s", output.Main) // debug
 
 			reader := bytes.NewReader(output.Main)
-			ast, err := LexParse(reader)
+			ast, err := LexParse(reader, 0)
 			if (!fail || !failLexParse) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: lex/parse failed with: %+v", index, err)
@@ -1249,7 +1249,7 @@ func TestAstFunc2(t *testing.T) {
 			logf("main:\n%s", output.Main) // debug
 
 			reader := bytes.NewReader(output.Main)
-			ast, err := LexParse(reader)
+			ast, err := LexParse(reader, 0)
 			if (!fail || !failLexParse) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: lex/parse failed with: %+v", index, err)
@@ -1759,7 +1759,7 @@ func TestAstInterpret0(t *testing.T) {
 		t.Logf("\n\ntest #%d (%s) ----------------\n\n", index, name)
 
 		str := strings.NewReader(code)
-		ast, err := LexParse(str)
+		ast, err := LexParse(str, 0)
 		if err != nil {
 			t.Errorf("test #%d: lex/parse failed with: %+v", index, err)
 			continue

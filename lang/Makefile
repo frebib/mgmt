@@ -18,42 +18,28 @@
 SHELL = /usr/bin/env bash
 .PHONY: all build clean fuzz
 
-OLDGOYACC := $(shell go version | grep -E 'go1.6|go1.7')
-
 all: build
 
-build: lexer.nn.go y.go interpolate/parse.generated.go
+build: lexer.nn.go interpolate/parse.generated.go
 	@# recursively run make in child dir named types
 	@$(MAKE) --quiet -C types
 
 clean:
 	$(MAKE) --quiet -C types clean
-	@rm -f lexer.nn.go y.go y.output interpolate/parse.generated.go || true
+	@$(RM) -f lexer.nn.go interpolate/ragel.generated.go y.go y.output
 
 lexer.nn.go: lexer.nex
 	@echo "Generating: lexer..."
-	nex -e lexer.nex
-	@ROOT="$$( cd "$$( dirname "$${BASH_SOURCE[0]}" )" && cd .. && pwd )" && $$ROOT/misc/header.sh 'lexer.nn.go'
-
-y.go: parser.y
-	@echo "Generating: parser..."
-ifneq ($(OLDGOYACC),)
-	go tool yacc parser.y
-else
-	@# newer golang versions moved yacc into: golang.org/x/tools/cmd/goyacc
-	goyacc parser.y
-endif
-	@ROOT="$$( cd "$$( dirname "$${BASH_SOURCE[0]}" )" && cd .. && pwd )" && $$ROOT/misc/header.sh 'y.go'
+	nex -e -p mcl $<
+	@sed -Ei 's/(Lex\([^\)]+\)) int \{/\1 Token \{/g' $@
+	@ROOT="$$( cd "$$( dirname "$${BASH_SOURCE[0]}" )" && cd .. && pwd )" && $$ROOT/misc/header.sh $@
 
 interpolate/parse.generated.go: interpolate/parse.rl
 	@echo "Generating: interpolation..."
-	ragel -Z -G2 -o interpolate/parse.generated.go interpolate/parse.rl
-	#@ROOT="$$( cd "$$( dirname "$${BASH_SOURCE[0]}" )" && cd .. && pwd )" && $$ROOT/misc/header.sh 'interpolate/parse.generated.go'
-	# XXX: I have no idea why I need to sed twice. I give up :P
+	ragel -Z -G2 -o $@ $<
 	# remove the ragel header so our header test passes
-	@sed -i -e "1d" 'interpolate/parse.generated.go'
-	@sed -i -e "1d" 'interpolate/parse.generated.go'
-	gofmt -s -w 'interpolate/parse.generated.go'
+	@sed -i -e "1,2d" $@
+	gofmt -s -w $@
 
 fuzz:
 	@$(MAKE) --quiet -C fuzz

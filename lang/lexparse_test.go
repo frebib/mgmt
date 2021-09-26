@@ -156,11 +156,22 @@ func TestLexParse0(t *testing.T) {
 		})
 	}
 	{
-		// TODO: skip trailing comma requirement on one-liners
+		testCases = append(testCases, test{
+			name: "missing trailing comma",
+			code: `
+			$somelist = [
+				1,
+				2  # there should be trailing comma here
+			]
+			`,
+			fail: true,
+		})
+	}
+	{
 		testCases = append(testCases, test{
 			name: "two lists",
 			code: `
-			$somelist = [42, 0, -13,]
+			$somelist = [42, 0, -13]
 			$somelonglist = [
 				"hello",
 				"and",
@@ -247,8 +258,8 @@ func TestLexParse0(t *testing.T) {
 		testCases = append(testCases, test{
 			name: "some lists",
 			code: `
-			$intlist []int = [42, -0, 13,]
-			$intlistnested [][]int = [[42,], [], [100, -0,], [-13,],]
+			$intlist []int = [42, -0, 13]
+			$intlistnested [][]int = [[42], [], [100, -0], [-13]]
 			`,
 			fail: false,
 			//exp: ???, // FIXME: add the expected AST
@@ -273,9 +284,9 @@ func TestLexParse0(t *testing.T) {
 			name: "maps 2",
 			code: `
 			$mapstrintlist map{str: []int} = {
-				"key1" => [42, 44,],
+				"key1" => [42, 44],
 				"key2" => [],
-				"key3" => [-13,],
+				"key3" => [-13],
 			}
 			`,
 			fail: false,
@@ -291,9 +302,9 @@ func TestLexParse0(t *testing.T) {
 				"key2" => -13,
 			}
 			$mapstrintlist map{str: []int} = {
-				"key1" => [42, 44,],
+				"key1" => [42, 44],
 				"key2" => [],
-				"key3" => [-13,],
+				"key3" => [-13],
 			}
 			`,
 			fail: false,
@@ -311,7 +322,7 @@ func TestLexParse0(t *testing.T) {
 			}
 			$structx2 struct{a int; b []bool; c str} = struct{
 				a => 42,
-				b => [true, false, false, true,],
+				b => [true, false, false, true],
 				c => "hello",
 			}
 			`,
@@ -1149,7 +1160,7 @@ func TestLexParse0(t *testing.T) {
 							},
 						},
 						&StmtResMeta{
-							Property: "meta",
+							Property: "Meta",
 							MetaExpr: &ExprStruct{
 								Fields: []*ExprStructField{
 									{Name: "poll", Value: &ExprInt{V: 5}},
@@ -1185,7 +1196,7 @@ func TestLexParse0(t *testing.T) {
 				Meta => struct{
 					poll => 5,
 					retry => 3,
-					sema => ["foo:1", "bar:3",],
+					sema => ["foo:1", "bar:3"],
 				},
 			}
 			`,
@@ -2104,7 +2115,7 @@ func TestLexParse0(t *testing.T) {
 			t.Logf("\n\ntest #%d (%s) ----------------\n\n", index, name)
 
 			str := strings.NewReader(code)
-			ast, err := LexParse(str)
+			ast, err := LexParse(str, 0)
 
 			if !fail && err != nil {
 				t.Errorf("test #%d: lex/parse failed with: %+v", index, err)
@@ -2170,17 +2181,17 @@ func TestLexParse1(t *testing.T) {
 	test "t1" {}
 	` // error
 	str := strings.NewReader(code)
-	_, err := LexParse(str)
-	if e, ok := err.(*LexParseErr); ok && e.Err != ErrParseExpectingComma {
+	_, err := LexParse(str, 0)
+	if e, ok := err.(*ParseError); ok {
 		t.Errorf("lex/parse failure, got: %+v", e)
 	} else if err == nil {
 		t.Errorf("lex/parse success, expected error")
 	} else {
-		if e.Row != 10 || e.Col != 9 {
-			t.Errorf("expected error at 10 x 9, got: %d x %d", e.Row, e.Col)
+		if e.Pos.Line != 11 || e.Pos.Column != 10 {
+			t.Errorf("expected error at 11 x 10, got: %s", e.Pos.String())
 		}
-		t.Logf("row x col: %d x %d", e.Row, e.Col)
-		t.Logf("message: %s", e.Str)
+		t.Logf(e.Pos.String())
+		//t.Logf("message: %s", e.Str)
 		t.Logf("output: %+v", err)
 	}
 }
@@ -2193,18 +2204,17 @@ func TestLexParse2(t *testing.T) {
 	}
 	` // error, assignment is a single equals, not two
 	str := strings.NewReader(code)
-	_, err := LexParse(str)
-	if e, ok := err.(*LexParseErr); ok && e.Err != ErrParseAdditionalEquals {
+	_, err := LexParse(str, 0)
+	if e, ok := err.(*ParseError); ok {
 		t.Errorf("lex/parse failure, got: %+v", e)
 	} else if err == nil {
 		t.Errorf("lex/parse success, expected error")
 	} else {
 		// TODO: when this is accurate, pick values and enable this!
-		//if e.Row != 8 || e.Col != 2 {
-		//	t.Errorf("expected error at 8 x 2, got: %d x %d", e.Row, e.Col)
+		//if e.Row != 9 || e.Col != 3 {
+		//	t.Errorf("expected error at 9 x 3, got: %d x %d", e.Pos.String())
 		//}
-		t.Logf("row x col: %d x %d", e.Row, e.Col)
-		t.Logf("message: %s", e.Str)
+		//t.Logf("message: %s", e.Str)
 		t.Logf("output: %+v", err)
 	}
 }
@@ -2252,17 +2262,17 @@ func TestLexParseWithOffsets1(t *testing.T) {
 		o1:      "file2",
 		o1 + o2: "file3", // offset is cumulative
 	}
-	_, err := LexParseWithOffsets(readers, offsets)
-	if e, ok := err.(*LexParseErr); ok && e.Err != ErrParseExpectingComma {
+	_, err := LexParseWithOffsets(readers, offsets, 0)
+	if e, ok := err.(*ParseError); ok {
 		t.Errorf("lex/parse failure, got: %+v", e)
 	} else if err == nil {
 		t.Errorf("lex/parse success, expected error")
 	} else {
-		if e.Row != 5 || e.Col != 9 || e.Filename != "file2" {
-			t.Errorf("expected error in 'file2' @ 5 x 9, got: '%s' @ %d x %d", e.Filename, e.Row, e.Col)
+		if e.Pos.Line != 6 || e.Pos.Column != 10 || e.Pos.Filename != "file2" {
+			t.Errorf("expected error in 'file2' @ 6 x 10, got: %s", e.Pos.String())
 		}
-		t.Logf("file @ row x col: '%s' @ %d x %d", e.Filename, e.Row, e.Col)
-		t.Logf("message: %s", e.Str)
+		t.Logf("file @ row x col: %s", e.Pos.String())
+		//t.Logf("message: %s", e.Str)
 		t.Logf("output: %+v", err) // this will be 1-indexed, instead of zero-indexed
 	}
 }

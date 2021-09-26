@@ -28,17 +28,9 @@ import (
 	"github.com/purpleidea/mgmt/util/errwrap"
 )
 
-// Pos represents a position in the code.
-// TODO: consider expanding with range characteristics.
-type Pos struct {
-	Line     int    // line number starting at 1
-	Column   int    // column number starting at 1
-	Filename string // optional source filename, if known
-}
-
 // InterpolateStr interpolates a string and returns the representative AST. It
 // uses the ragel parser to perform the string interpolation.
-func InterpolateStr(str string, pos *Pos) (interfaces.Expr, error) {
+func InterpolateStr(str string, pos interfaces.Pos) (interfaces.Expr, error) {
 	sequence, err := interpolate.Parse(str)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "parser failed")

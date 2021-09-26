@@ -43,69 +43,6 @@ const (
 	CoreDir = "core/"
 )
 
-// These constants represent the different possible lexer/parser errors.
-const (
-	ErrLexerUnrecognized      = interfaces.Error("unrecognized")
-	ErrLexerUnrecognizedCR    = interfaces.Error("unrecognized carriage return")
-	ErrLexerStringBadEscaping = interfaces.Error("string: bad escaping")
-	ErrLexerIntegerOverflow   = interfaces.Error("integer: overflow")
-	ErrLexerFloatOverflow     = interfaces.Error("float: overflow")
-	ErrParseError             = interfaces.Error("parser")
-	ErrParseSetType           = interfaces.Error("can't set return type in parser")
-	ErrParseResFieldInvalid   = interfaces.Error("can't use unknown resource field")
-	ErrParseAdditionalEquals  = interfaces.Error(errstrParseAdditionalEquals)
-	ErrParseExpectingComma    = interfaces.Error(errstrParseExpectingComma)
-)
-
-// LexParseErr is a permanent failure error to notify about borkage.
-type LexParseErr struct {
-	Err interfaces.Error
-	Str string
-	Row int // this is zero-indexed (the first line is 0)
-	Col int // this is zero-indexed (the first char is 0)
-
-	// Filename is the file that this error occurred in. If this is unknown,
-	// then it will be empty. This is not set when run by the basic LexParse
-	// function.
-	Filename string
-}
-
-// Error displays this error with all the relevant state information.
-func (e *LexParseErr) Error() string {
-	return fmt.Sprintf("%s: `%s` @%d:%d", e.Err, e.Str, e.Row+1, e.Col+1)
-}
-
-// lexParseAST is a struct which we pass into the lexer/parser so that we have a
-// location to store the AST to avoid having to use a global variable.
-type lexParseAST struct {
-	ast interfaces.Stmt
-
-	row int
-	col int
-
-	lexerErr error // from lexer
-	parseErr error // from Error(e string)
-}
-
-// LexParse runs the lexer/parser machinery and returns the AST.
-func LexParse(input io.Reader) (interfaces.Stmt, error) {
-	lp := &lexParseAST{}
-	// parseResult is a seemingly unused field in the Lexer struct for us...
-	lexer := NewLexerWithInit(input, func(y *Lexer) { y.parseResult = lp })
-	yyParse(lexer) // writes the result to lp.ast
-	var err error
-	if e := lp.parseErr; e != nil {
-		err = e
-	}
-	if e := lp.lexerErr; e != nil {
-		err = e
-	}
-	if err != nil {
-		return nil, err
-	}
-	return lp.ast, nil
-}
-
 // LexParseWithOffsets takes an io.Reader input and a list of corresponding
 // offsets and runs LexParse on them. The input to this function is most
 // commonly the output from DirectoryReader which returns a single io.Reader and
@@ -116,16 +53,16 @@ func LexParse(input io.Reader) (interfaces.Stmt, error) {
 // math. The offsets are in units of file size (bytes) and not length (lines).
 // TODO: Due to an implementation difficulty, offsets are currently in length!
 // NOTE: This was used for an older deprecated form of lex/parse file combining.
-func LexParseWithOffsets(input io.Reader, offsets map[uint64]string) (interfaces.Stmt, error) {
+func LexParseWithOffsets(input io.Reader, offsets map[uint64]string, flags Flag) (interfaces.Stmt, error) {
 	if offsets == nil || len(offsets) == 0 {
-		return LexParse(input) // special case, no named offsets...
+		return LexParse(input, flags) // special case, no named offsets...
 	}
 
-	stmt, err := LexParse(input)
+	stmt, err := LexParse(input, flags)
 	if err == nil { // handle the success case first because it ends faster
 		return stmt, nil
 	}
-	e, ok := err.(*LexParseErr)
+	e, ok := err.(*ParseError)
 	if !ok {
 		return nil, err // unexpected error format
 	}
@@ -143,7 +80,7 @@ func LexParseWithOffsets(input io.Reader, offsets map[uint64]string) (interfaces
 
 	// TODO: switch this to an offset in bytes instead of lines
 	// TODO: we'll also need a way to convert that into the new row number!
-	row := uint64(e.Row)
+	row := uint64(e.Pos.Line)
 	var i uint64           // initial condition
 	filename := offsets[0] // (assumption)
 	for _, i = range uints {
@@ -155,12 +92,19 @@ func LexParseWithOffsets(input io.Reader, offsets map[uint64]string) (interfaces
 		filename = offsets[i]
 	}
 
-	return nil, &LexParseErr{
-		Err:      e.Err,        // same
-		Str:      e.Str,        // same
-		Row:      int(i - row), // computed offset
-		Col:      e.Col,        // same
-		Filename: filename,     // actual filename
+	return nil, &ParseError{
+		Pos: interfaces.Pos{
+			Line: int(i-row) + 1,
+			Column: e.Pos.Column,
+			Filename: filename,
+		},
+		/*
+			Err:      e.Err,        // same
+			Str:      e.Str,        // same
+			Row:      int(i - row), // computed offset
+			Col:      e.Col,        // same
+			Filename: filename,     // actual filename
+		*/
 	}
 }
 
