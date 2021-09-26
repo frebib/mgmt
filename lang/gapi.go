@@ -258,13 +258,6 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 		return nil, errwrap.Wrapf(err, "could not init and validate AST")
 	}
 
-	logf("interpolating...")
-	// interpolate strings and other expansionable nodes in AST
-	interpolated, err := ast.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate AST")
-	}
-
 	variables := map[string]interfaces.Expr{
 		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi
 		// TODO: change to a func when we can change hostname dynamically!
@@ -291,7 +284,7 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	// operation should not depend on any initial scope values, since those
 	// would all be runtime changes, and we do not support dynamic imports,
 	// however, we need to since we're doing type unification to err early!
-	if err := interpolated.SetScope(scope); err != nil { // empty initial scope!
+	if err := ast.SetScope(scope); err != nil { // empty initial scope!
 		return nil, errwrap.Wrapf(err, "could not set scope")
 	}
 
@@ -303,7 +296,7 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	}
 	logf("running type unification...")
 	unifier := &unification.Unifier{
-		AST:    interpolated,
+		AST:    ast,
 		Solver: unification.SimpleInvariantSolverLogger(unificationLogf),
 		Debug:  debug,
 		Logf:   unificationLogf,
@@ -313,7 +306,7 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 	}
 
 	// get the list of needed files (this is available after SetScope)
-	fileList, err := CollectFiles(interpolated)
+	fileList, err := CollectFiles(ast)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not collect files")
 	}
@@ -728,20 +721,13 @@ func (obj *GAPI) Get(getInfo *gapi.GetInfo) error {
 		return errwrap.Wrapf(err, "could not init and validate AST")
 	}
 
-	logf("interpolating...")
-	// interpolate strings and other expansionable nodes in AST
-	interpolated, err := ast.Interpolate()
-	if err != nil {
-		return errwrap.Wrapf(err, "could not interpolate AST")
-	}
-
 	logf("building scope...")
 	// propagate the scope down through the AST...
 	// we use SetScope because it follows all of the imports through. i
 	// don't think we need to pass in an initial scope because the download
 	// operation shouldn't depend on any initial scope values, since those
 	// would all be runtime changes, and we do not support dynamic imports!
-	if err := interpolated.SetScope(nil); err != nil { // empty initial scope!
+	if err := ast.SetScope(nil); err != nil { // empty initial scope!
 		return errwrap.Wrapf(err, "could not set scope")
 	}
 

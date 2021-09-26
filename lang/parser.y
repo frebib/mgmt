@@ -239,7 +239,7 @@ stmt:
 			}
 			if err := fn.SetType(typ); err != nil {
 				// this will ultimately cause a parser error to occur...
-				yylex.Error(fmt.Sprintf("%s: %+v", ErrParseSetType, err))
+				yylex.Error(fmt.Sprintf("%+v", err))
 			}
 		}
 		$$.stmt = &StmtFunc{
@@ -332,9 +332,15 @@ expr:
 |	STRING
 	{
 		posLast(yylex, yyDollar) // our pos
-		$$.expr = &ExprStr{
-			V: $1.str,
+		pos := &Pos{
+		    Line:   yylex.line(),
+		    Column: yylex.column(),
 		}
+		interpolated, err := InterpolateStr($1.str, pos)
+		if err != nil {
+			yylex.Error(err)
+		}
+		$$.expr = interpolated
 	}
 |	INTEGER
 	{

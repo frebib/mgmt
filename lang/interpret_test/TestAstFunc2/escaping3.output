@@ -1,1 +1,1 @@
-# err: errInterpolate: parser failed: cannot parse string: X: ${}
+# err: errLexParse: parser failed: cannot parse string: X: ${}

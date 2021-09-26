@@ -38,7 +38,7 @@ type Pos struct {
 
 // InterpolateStr interpolates a string and returns the representative AST. It
 // uses the ragel parser to perform the string interpolation.
-func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
+func InterpolateStr(str string, pos *Pos) (interfaces.Expr, error) {
 	sequence, err := interpolate.Parse(str)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "parser failed")
@@ -84,7 +84,7 @@ func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Exp
 		return nil, errwrap.Wrapf(err, "concat expr list failed")
 	}
 
-	return result, errwrap.Wrapf(result.Init(data), "init failed")
+	return result, nil
 }
 
 // concatExprListIntoCall takes a list of expressions, and combines them into an

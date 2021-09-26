@@ -458,15 +458,8 @@ func TestAstFunc0(t *testing.T) {
 				return
 			}
 
-			iast, err := ast.Interpolate()
-			if err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate failed with: %+v", index, err)
-				return
-			}
-
 			// propagate the scope down through the AST...
-			err = iast.SetScope(scope)
+			err = ast.SetScope(scope)
 			if !fail && err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: could not set scope: %+v", index, err)
@@ -481,7 +474,7 @@ func TestAstFunc0(t *testing.T) {
 				t.Logf(fmt.Sprintf("test #%d", index)+": unification: "+format, v...)
 			}
 			unifier := &unification.Unifier{
-				AST:    iast,
+				AST:    ast,
 				Solver: unification.SimpleInvariantSolverLogger(logf),
 				Debug:  testing.Verbose(),
 				Logf:   logf,
@@ -503,7 +496,7 @@ func TestAstFunc0(t *testing.T) {
 			}
 
 			// build the function graph
-			graph, err := iast.Graph()
+			graph, err := ast.Graph()
 
 			if !fail && err != nil {
 				t.Errorf("test #%d: FAIL", index)
@@ -851,15 +844,8 @@ func TestAstFunc1(t *testing.T) {
 				return
 			}
 
-			iast, err := ast.Interpolate()
-			if err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate failed with: %+v", index, err)
-				return
-			}
-
 			// propagate the scope down through the AST...
-			err = iast.SetScope(scope)
+			err = ast.SetScope(scope)
 			if (!fail || !failSetScope) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: could not set scope: %+v", index, err)
@@ -886,7 +872,7 @@ func TestAstFunc1(t *testing.T) {
 				logf("unification: "+format, v...)
 			}
 			unifier := &unification.Unifier{
-				AST:    iast,
+				AST:    ast,
 				Solver: unification.SimpleInvariantSolverLogger(xlogf),
 				Debug:  testing.Verbose(),
 				Logf:   xlogf,
@@ -914,7 +900,7 @@ func TestAstFunc1(t *testing.T) {
 			}
 
 			// build the function graph
-			graph, err := iast.Graph()
+			graph, err := ast.Graph()
 
 			if (!fail || !failGraph) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
@@ -1001,7 +987,6 @@ func TestAstFunc2(t *testing.T) {
 	const magicError = "# err: "
 	const magicErrorLexParse = "errLexParse: "
 	const magicErrorInit = "errInit: "
-	const magicInterpolate = "errInterpolate: "
 	const magicErrorSetScope = "errSetScope: "
 	const magicErrorUnify = "errUnify: "
 	const magicErrorGraph = "errGraph: "
@@ -1037,7 +1022,6 @@ func TestAstFunc2(t *testing.T) {
 	type errs struct {
 		failLexParse    bool
 		failInit        bool
-		failInterpolate bool
 		failSetScope    bool
 		failUnify       bool
 		failGraph       bool
@@ -1097,7 +1081,6 @@ func TestAstFunc2(t *testing.T) {
 		errStr := ""
 		failLexParse := false
 		failInit := false
-		failInterpolate := false
 		failSetScope := false
 		failUnify := false
 		failGraph := false
@@ -1116,11 +1099,6 @@ func TestAstFunc2(t *testing.T) {
 				errStr = strings.TrimPrefix(str, magicErrorInit)
 				str = errStr
 				failInit = true
-			}
-			if strings.HasPrefix(str, magicInterpolate) {
-				errStr = strings.TrimPrefix(str, magicInterpolate)
-				str = errStr
-				failInterpolate = true
 			}
 			if strings.HasPrefix(str, magicErrorSetScope) {
 				errStr = strings.TrimPrefix(str, magicErrorSetScope)
@@ -1158,7 +1136,6 @@ func TestAstFunc2(t *testing.T) {
 			errs: errs{
 				failLexParse:    failLexParse,
 				failInit:        failInit,
-				failInterpolate: failInterpolate,
 				failSetScope:    failSetScope,
 				failUnify:       failUnify,
 				failGraph:       failGraph,
@@ -1199,7 +1176,6 @@ func TestAstFunc2(t *testing.T) {
 			src := dir + path // location of the test
 			failLexParse := errs.failLexParse
 			failInit := errs.failInit
-			failInterpolate := errs.failInterpolate
 			failSetScope := errs.failSetScope
 			failUnify := errs.failUnify
 			failGraph := errs.failGraph
@@ -1347,30 +1323,8 @@ func TestAstFunc2(t *testing.T) {
 				return
 			}
 
-			iast, err := ast.Interpolate()
-			if (!fail || !failInterpolate) && err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: Interpolate failed with: %+v", index, err)
-				return
-			}
-			if failInterpolate && err != nil {
-				s := err.Error() // convert to string
-				if s != expstr {
-					t.Errorf("test #%d: FAIL", index)
-					t.Errorf("test #%d: expected different error", index)
-					t.Logf("test #%d: err: %s", index, s)
-					t.Logf("test #%d: exp: %s", index, expstr)
-				}
-				return // fail happened during lex parse, don't run init/interpolate!
-			}
-			if failInterpolate && err == nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: Interpolate passed, expected fail", index)
-				return
-			}
-
 			// propagate the scope down through the AST...
-			err = iast.SetScope(scope)
+			err = ast.SetScope(scope)
 			if (!fail || !failSetScope) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: could not set scope: %+v", index, err)
@@ -1397,7 +1351,7 @@ func TestAstFunc2(t *testing.T) {
 				logf("unification: "+format, v...)
 			}
 			unifier := &unification.Unifier{
-				AST:    iast,
+				AST:    ast,
 				Solver: unification.SimpleInvariantSolverLogger(xlogf),
 				Debug:  testing.Verbose(),
 				Logf:   xlogf,
@@ -1425,7 +1379,7 @@ func TestAstFunc2(t *testing.T) {
 			}
 
 			// build the function graph
-			graph, err := iast.Graph()
+			graph, err := ast.Graph()
 
 			if (!fail || !failGraph) && err != nil {
 				t.Errorf("test #%d: FAIL", index)
@@ -1535,7 +1489,7 @@ func TestAstFunc2(t *testing.T) {
 
 			// run interpret!
 			funcs.RLock() // in case something is actually changing
-			ograph, err := interpret(iast)
+			ograph, err := interpret(ast)
 			funcs.RUnlock()
 
 			if (!fail || !failInterpret) && err != nil {

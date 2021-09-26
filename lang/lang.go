@@ -157,14 +157,7 @@ func (obj *Lang) Init() error {
 	if err := ast.Init(data); err != nil {
 		return errwrap.Wrapf(err, "could not init and validate AST")
 	}
-
-	obj.Logf("interpolating...")
-	// interpolate strings and other expansionable nodes in AST
-	interpolated, err := ast.Interpolate()
-	if err != nil {
-		return errwrap.Wrapf(err, "could not interpolate AST")
-	}
-	obj.ast = interpolated
+	obj.ast = ast
 
 	variables := map[string]interfaces.Expr{
 		"purpleidea": &ExprStr{V: "hello world!"}, // james says hi

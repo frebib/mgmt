@@ -49,12 +49,8 @@ type Stmt interface {
 	// Init initializes the populated node and does some basic validation.
 	Init(*Data) error
 
-	// Interpolate returns an expanded form of the AST as a new AST. It does
-	// a recursive interpolate (copy) of all members in the AST.
-	Interpolate() (Stmt, error) // return expanded form of AST as a new AST
-
 	// Copy returns a light copy of the struct. Anything static will not be
-	// copied. For a full recursive copy consider using Interpolate instead.
+	// copied.
 	// TODO: do we need an error in the signature?
 	Copy() (Stmt, error)
 
@@ -89,13 +85,8 @@ type Expr interface {
 	// Init initializes the populated node and does some basic validation.
 	Init(*Data) error
 
-	// Interpolate returns an expanded form of the AST as a new AST. It does
-	// a recursive interpolate (copy) of all members in the AST. For a light
-	// copy use Copy.
-	Interpolate() (Expr, error)
-
 	// Copy returns a light copy of the struct. Anything static will not be
-	// copied. For a full recursive copy consider using Interpolate instead.
+	// copied.
 	// TODO: do we need an error in the signature?
 	Copy() (Expr, error)
 

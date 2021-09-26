@@ -226,18 +226,6 @@ func TestInterpolate0(t *testing.T) {
 				return
 			}
 
-			iast, err := ast.Interpolate()
-			if !fail && err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate failed with: %+v", index, err)
-				return
-			}
-			if fail && err == nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate expected error, not nil", index)
-				return
-			}
-
 			// init exp so that the match will look identical...
 			if !fail {
 				if err := exp.Init(data); err != nil {
@@ -247,7 +235,7 @@ func TestInterpolate0(t *testing.T) {
 				}
 			}
 
-			if reflect.DeepEqual(iast, exp) {
+			if reflect.DeepEqual(ast, exp) {
 				return
 			}
 			// double check because DeepEqual is different since the logf exists
@@ -261,17 +249,17 @@ func TestInterpolate0(t *testing.T) {
 				//HomePackage       string
 				//Separator         string
 			}
-			if lo.Sdump(iast) == lo.Sdump(exp) { // simple diff
+			if lo.Sdump(ast) == lo.Sdump(exp) { // simple diff
 				return
 			}
 
-			diff := pretty.Compare(iast, exp)
+			diff := pretty.Compare(ast, exp)
 			if diff == "" { // bonus
 				return
 			}
 			t.Errorf("test #%d: AST did not match expected", index)
 			// TODO: consider making our own recursive print function
-			t.Logf("test #%d:   actual: \n%s", index, lo.Sdump(iast))
+			t.Logf("test #%d:   actual: \n%s", index, lo.Sdump(ast))
 			t.Logf("test #%d: expected: \n%s", index, lo.Sdump(exp))
 			t.Logf("test #%d: diff:\n%s", index, diff)
 		})
@@ -479,18 +467,6 @@ func TestInterpolateBasicStmt(t *testing.T) {
 				return
 			}
 
-			iast, err := ast.Interpolate()
-			if !fail && err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate failed with: %+v", index, err)
-				return
-			}
-			if fail && err == nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate expected error, not nil", index)
-				return
-			}
-
 			// init exp so that the match will look identical...
 			if !fail {
 				if err := exp.Init(data); err != nil {
@@ -500,17 +476,17 @@ func TestInterpolateBasicStmt(t *testing.T) {
 				}
 			}
 
-			if reflect.DeepEqual(iast, exp) {
+			if reflect.DeepEqual(ast, exp) {
 				return
 			}
 			// double check because DeepEqual is different since the logf exists
-			diff := pretty.Compare(iast, exp)
+			diff := pretty.Compare(ast, exp)
 			if diff == "" { // bonus
 				return
 			}
 			t.Errorf("test #%d: AST did not match expected", index)
 			// TODO: consider making our own recursive print function
-			t.Logf("test #%d:   actual: \n%s", index, spew.Sdump(iast))
+			t.Logf("test #%d:   actual: \n%s", index, spew.Sdump(ast))
 			t.Logf("test #%d: expected: \n%s", index, spew.Sdump(exp))
 			t.Logf("test #%d: diff:\n%s", index, diff)
 		})
@@ -799,18 +775,6 @@ func TestInterpolateBasicExpr(t *testing.T) {
 			if err := ast.Init(data); err != nil {
 				t.Errorf("test #%d: FAIL", index)
 				t.Errorf("test #%d: could not init and validate AST: %+v", index, err)
-				return
-			}
-
-			iast, err := ast.Interpolate()
-			if !fail && err != nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate failed with: %+v", index, err)
-				return
-			}
-			if fail && err == nil {
-				t.Errorf("test #%d: FAIL", index)
-				t.Errorf("test #%d: interpolate expected error, not nil", index)
 				return
 			}
 

@@ -137,20 +137,6 @@ func (obj *StmtBind) Init(data *interfaces.Data) error {
 	return obj.Value.Init(data)
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtBind) Interpolate() (interfaces.Stmt, error) {
-	interpolated, err := obj.Value.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-	return &StmtBind{
-		Ident: obj.Ident,
-		Value: interpolated,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtBind) Copy() (interfaces.Stmt, error) {
 	copied := false
@@ -341,32 +327,6 @@ func (obj *StmtRes) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtRes) Interpolate() (interfaces.Stmt, error) {
-	name, err := obj.Name.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-
-	contents := []StmtResContents{}
-	for _, x := range obj.Contents { // make sure we preserve ordering...
-		interpolated, err := x.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		contents = append(contents, interpolated)
-	}
-
-	return &StmtRes{
-		data:     obj.data,
-		Kind:     obj.Kind,
-		Name:     name,
-		Contents: contents,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -1049,7 +1009,6 @@ func (obj *StmtRes) metaparams(res engine.Res) error {
 type StmtResContents interface {
 	interfaces.Node
 	Init(*interfaces.Data) error
-	Interpolate() (StmtResContents, error) // different!
 	Copy() (StmtResContents, error)
 	Ordering(map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error)
 	SetScope(*interfaces.Scope) error
@@ -1097,30 +1056,6 @@ func (obj *StmtResField) Init(data *interfaces.Data) error {
 		}
 	}
 	return obj.Value.Init(data)
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// This interpolate is different It is different from the interpolate found in
-// the Expr and Stmt interfaces because it returns a different type as output.
-func (obj *StmtResField) Interpolate() (StmtResContents, error) {
-	interpolated, err := obj.Value.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-	var condition interfaces.Expr
-	if obj.Condition != nil {
-		condition, err = obj.Condition.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &StmtResField{
-		Field:     obj.Field,
-		Value:     interpolated,
-		Condition: condition,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -1357,30 +1292,6 @@ func (obj *StmtResEdge) Init(data *interfaces.Data) error {
 	return obj.EdgeHalf.Init(data)
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// This interpolate is different It is different from the interpolate found in
-// the Expr and Stmt interfaces because it returns a different type as output.
-func (obj *StmtResEdge) Interpolate() (StmtResContents, error) {
-	interpolated, err := obj.EdgeHalf.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-	var condition interfaces.Expr
-	if obj.Condition != nil {
-		condition, err = obj.Condition.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &StmtResEdge{
-		Property:  obj.Property,
-		EdgeHalf:  interpolated,
-		Condition: condition,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtResEdge) Copy() (StmtResContents, error) {
 	copied := false
@@ -1609,30 +1520,6 @@ func (obj *StmtResMeta) Init(data *interfaces.Data) error {
 		}
 	}
 	return obj.MetaExpr.Init(data)
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// This interpolate is different It is different from the interpolate found in
-// the Expr and Stmt interfaces because it returns a different type as output.
-func (obj *StmtResMeta) Interpolate() (StmtResContents, error) {
-	interpolated, err := obj.MetaExpr.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-	var condition interfaces.Expr
-	if obj.Condition != nil {
-		condition, err = obj.Condition.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &StmtResMeta{
-		Property:  obj.Property,
-		MetaExpr:  interpolated,
-		Condition: condition,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -1919,29 +1806,6 @@ func (obj *StmtEdge) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// TODO: could we expand the Name's from the EdgeHalf (if they're lists) to have
-// them return a list of Edges's ?
-// XXX: type check the kind1:send -> kind2:recv fields are compatible!
-// XXX: we won't know the names yet, but it's okay.
-func (obj *StmtEdge) Interpolate() (interfaces.Stmt, error) {
-	edgeHalfList := []*StmtEdgeHalf{}
-	for _, x := range obj.EdgeHalfList {
-		edgeHalf, err := x.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		edgeHalfList = append(edgeHalfList, edgeHalf)
-	}
-
-	return &StmtEdge{
-		EdgeHalfList: edgeHalfList,
-		Notify:       obj.Notify,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -2241,24 +2105,6 @@ func (obj *StmtEdgeHalf) Init(data *interfaces.Data) error {
 	return obj.Name.Init(data)
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// This interpolate is different It is different from the interpolate found in
-// the Expr and Stmt interfaces because it returns a different type as output.
-func (obj *StmtEdgeHalf) Interpolate() (*StmtEdgeHalf, error) {
-	name, err := obj.Name.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-
-	return &StmtEdgeHalf{
-		Kind:     obj.Kind,
-		Name:     name,
-		SendRecv: obj.SendRecv,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtEdgeHalf) Copy() (*StmtEdgeHalf, error) {
 	copied := false
@@ -2414,35 +2260,6 @@ func (obj *StmtIf) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtIf) Interpolate() (interfaces.Stmt, error) {
-	condition, err := obj.Condition.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate Condition")
-	}
-	var thenBranch interfaces.Stmt
-	if obj.ThenBranch != nil {
-		thenBranch, err = obj.ThenBranch.Interpolate()
-		if err != nil {
-			return nil, errwrap.Wrapf(err, "could not interpolate ThenBranch")
-		}
-	}
-	var elseBranch interfaces.Stmt
-	if obj.ElseBranch != nil {
-		elseBranch, err = obj.ElseBranch.Interpolate()
-		if err != nil {
-			return nil, errwrap.Wrapf(err, "could not interpolate ElseBranch")
-		}
-	}
-	return &StmtIf{
-		Condition:  condition,
-		ThenBranch: thenBranch,
-		ElseBranch: elseBranch,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -2758,27 +2575,6 @@ func (obj *StmtProg) Init(data *interfaces.Data) error {
 	return nil
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtProg) Interpolate() (interfaces.Stmt, error) {
-	prog := []interfaces.Stmt{}
-	for _, x := range obj.Prog {
-		interpolated, err := x.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		prog = append(prog, interpolated)
-	}
-	return &StmtProg{
-		data:        obj.data,
-		scope:       obj.scope,
-		importProgs: obj.importProgs, // TODO: do we even need this here?
-		importFiles: obj.importFiles,
-		Prog:        prog,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtProg) Copy() (interfaces.Stmt, error) {
 	copied := false
@@ -3076,7 +2872,7 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 		if err := fn.Init(obj.data); err != nil {
 			return nil, errwrap.Wrapf(err, "could not init function")
 		}
-		// TODO: do we want to run Interpolate or SetScope?
+		// TODO: do we want to run SetScope?
 	}
 
 	// initial scope, built from core golang code
@@ -3135,28 +2931,21 @@ func (obj *StmtProg) importSystemScope(name string) (*interfaces.Scope, error) {
 
 		obj.data.Logf("init...")
 		// init and validate the structure of the AST
-		// some of this might happen *after* interpolate in SetScope or Unify...
+		// some of this might happen in SetScope or Unify...
 		if err := ast.Init(obj.data); err != nil {
 			return nil, errwrap.Wrapf(err, "could not init and validate AST")
-		}
-
-		obj.data.Logf("interpolating...")
-		// interpolate strings and other expansionable nodes in AST
-		interpolated, err := ast.Interpolate()
-		if err != nil {
-			return nil, errwrap.Wrapf(err, "could not interpolate AST from import `%s`", name)
 		}
 
 		obj.data.Logf("building scope...")
 		// propagate the scope down through the AST...
 		// most importantly, we ensure that the child imports will run!
 		// we pass in *our* parent scope, which will include the globals
-		if err := interpolated.SetScope(scope); err != nil {
+		if err := ast.SetScope(scope); err != nil {
 			return nil, errwrap.Wrapf(err, "could not set scope from import `%s`", name)
 		}
 
 		// is the root of our ast a program?
-		prog, ok := interpolated.(*StmtProg)
+		prog, ok := ast.(*StmtProg)
 		if !ok {
 			return nil, fmt.Errorf("import `%s` did not return a program", name)
 		}
@@ -3270,18 +3059,11 @@ func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, pa
 		return nil, errwrap.Wrapf(err, "could not init and validate AST")
 	}
 
-	logf("interpolating...")
-	// interpolate strings and other expansionable nodes in AST
-	interpolated, err := ast.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate AST from import")
-	}
-
 	logf("building scope...")
 	// propagate the scope down through the AST...
 	// most importantly, we ensure that the child imports will run!
 	// we pass in *our* parent scope, which will include the globals
-	if err := interpolated.SetScope(scope); err != nil {
+	if err := ast.SetScope(scope); err != nil {
 		return nil, errwrap.Wrapf(err, "could not set scope from import")
 	}
 
@@ -3294,7 +3076,7 @@ func (obj *StmtProg) importScopeWithInputs(s string, scope *interfaces.Scope, pa
 	//obj.importFiles = append(obj.importFiles, fileList...) // save for CollectFiles
 
 	// is the root of our ast a program?
-	prog, ok := interpolated.(*StmtProg)
+	prog, ok := ast.(*StmtProg)
 	if !ok {
 		return nil, fmt.Errorf("import did not return a program")
 	}
@@ -3845,21 +3627,6 @@ func (obj *StmtFunc) Init(data *interfaces.Data) error {
 	return nil
 }
 
-// Interpolate returns a new node (or itself) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtFunc) Interpolate() (interfaces.Stmt, error) {
-	interpolated, err := obj.Func.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-
-	return &StmtFunc{
-		Name: obj.Name,
-		Func: interpolated,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtFunc) Copy() (interfaces.Stmt, error) {
 	copied := false
@@ -3996,28 +3763,6 @@ func (obj *StmtClass) Apply(fn func(interfaces.Node) error) error {
 // validate.
 func (obj *StmtClass) Init(data *interfaces.Data) error {
 	return obj.Body.Init(data)
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtClass) Interpolate() (interfaces.Stmt, error) {
-	interpolated, err := obj.Body.Interpolate()
-	if err != nil {
-		return nil, err
-	}
-
-	args := obj.Args
-	if obj.Args == nil {
-		args = []*interfaces.Arg{}
-	}
-
-	return &StmtClass{
-		scope: obj.scope,
-		Name:  obj.Name,
-		Args:  args, // ensure this has length == 0 instead of nil
-		Body:  interpolated,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -4187,33 +3932,6 @@ func (obj *StmtInclude) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtInclude) Interpolate() (interfaces.Stmt, error) {
-	args := []interfaces.Expr{}
-	if obj.Args != nil {
-		for _, x := range obj.Args {
-			interpolated, err := x.Interpolate()
-			if err != nil {
-				return nil, err
-			}
-			args = append(args, interpolated)
-		}
-	}
-
-	orig := obj
-	if obj.orig != nil { // preserve the original pointer (the identifier!)
-		orig = obj.orig
-	}
-	return &StmtInclude{
-		//class: obj.class, // TODO: is this necessary?
-		orig: orig,
-		Name: obj.Name,
-		Args: args,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -4506,16 +4224,6 @@ func (obj *StmtImport) Apply(fn func(interfaces.Node) error) error { return fn(o
 // validate.
 func (obj *StmtImport) Init(*interfaces.Data) error { return nil }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *StmtImport) Interpolate() (interfaces.Stmt, error) {
-	return &StmtImport{
-		Name:  obj.Name,
-		Alias: obj.Alias,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtImport) Copy() (interfaces.Stmt, error) {
 	return obj, nil // always static
@@ -4598,16 +4306,6 @@ func (obj *StmtComment) Init(*interfaces.Data) error {
 	return nil
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *StmtComment) Interpolate() (interfaces.Stmt, error) {
-	return &StmtComment{
-		Value: obj.Value,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *StmtComment) Copy() (interfaces.Stmt, error) {
 	return obj, nil // always static
@@ -4676,17 +4374,6 @@ func (obj *ExprBool) Apply(fn func(interfaces.Node) error) error { return fn(obj
 // Init initializes this branch of the AST, and returns an error if it fails to
 // validate.
 func (obj *ExprBool) Init(*interfaces.Data) error { return nil }
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *ExprBool) Interpolate() (interfaces.Expr, error) {
-	return &ExprBool{
-		scope: obj.scope,
-		V:     obj.V,
-	}, nil
-}
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *ExprBool) Copy() (interfaces.Expr, error) {
@@ -4806,52 +4493,6 @@ func (obj *ExprStr) Apply(fn func(interfaces.Node) error) error { return fn(obj)
 func (obj *ExprStr) Init(data *interfaces.Data) error {
 	obj.data = data
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it attempts to expand the string if there are any internal variables
-// which need interpolation. If any are found, it returns a larger AST which has
-// a function which returns a string as its root. Otherwise it returns itself.
-func (obj *ExprStr) Interpolate() (interfaces.Expr, error) {
-	pos := &Pos{
-		// column/line number, starting at 1
-		//Column: -1, // TODO
-		//Line: -1, // TODO
-		//Filename: "", // optional source filename, if known
-	}
-
-	data := &interfaces.Data{
-		// TODO: add missing fields here if/when needed
-		Fs:         obj.data.Fs,
-		FsURI:      obj.data.FsURI,
-		Base:       obj.data.Base,
-		Files:      obj.data.Files,
-		Imports:    obj.data.Imports,
-		Metadata:   obj.data.Metadata,
-		Modules:    obj.data.Modules,
-		Downloader: obj.data.Downloader,
-		//World:      obj.data.World,
-		Prefix: obj.data.Prefix,
-		Debug:  obj.data.Debug,
-		Logf: func(format string, v ...interface{}) {
-			obj.data.Logf("interpolate: "+format, v...)
-		},
-	}
-	result, err := InterpolateStr(obj.V, pos, data)
-	if err != nil {
-		return nil, err
-	}
-	if result == nil {
-		return &ExprStr{
-			data:  obj.data,
-			scope: obj.scope,
-			V:     obj.V,
-		}, nil
-	}
-	// we got something, overwrite the existing static str
-	return result, nil // replacement
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -4974,17 +4615,6 @@ func (obj *ExprInt) Apply(fn func(interfaces.Node) error) error { return fn(obj)
 // validate.
 func (obj *ExprInt) Init(*interfaces.Data) error { return nil }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *ExprInt) Interpolate() (interfaces.Expr, error) {
-	return &ExprInt{
-		scope: obj.scope,
-		V:     obj.V,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *ExprInt) Copy() (interfaces.Expr, error) {
 	return obj, nil // always static
@@ -5101,17 +4731,6 @@ func (obj *ExprFloat) Apply(fn func(interfaces.Node) error) error { return fn(ob
 // Init initializes this branch of the AST, and returns an error if it fails to
 // validate.
 func (obj *ExprFloat) Init(*interfaces.Data) error { return nil }
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *ExprFloat) Interpolate() (interfaces.Expr, error) {
-	return &ExprFloat{
-		scope: obj.scope,
-		V:     obj.V,
-	}, nil
-}
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *ExprFloat) Copy() (interfaces.Expr, error) {
@@ -5248,25 +4867,6 @@ func (obj *ExprList) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *ExprList) Interpolate() (interfaces.Expr, error) {
-	elements := []interfaces.Expr{}
-	for _, x := range obj.Elements {
-		interpolated, err := x.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		elements = append(elements, interpolated)
-	}
-	return &ExprList{
-		scope:    obj.scope,
-		typ:      obj.typ,
-		Elements: elements,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -5630,33 +5230,6 @@ func (obj *ExprMap) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *ExprMap) Interpolate() (interfaces.Expr, error) {
-	kvs := []*ExprMapKV{}
-	for _, x := range obj.KVs {
-		interpolatedKey, err := x.Key.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		interpolatedVal, err := x.Val.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		kv := &ExprMapKV{
-			Key: interpolatedKey,
-			Val: interpolatedVal,
-		}
-		kvs = append(kvs, kv)
-	}
-	return &ExprMap{
-		scope: obj.scope,
-		typ:   obj.typ,
-		KVs:   kvs,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -6158,29 +5731,6 @@ func (obj *ExprStruct) Init(data *interfaces.Data) error {
 	return nil
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *ExprStruct) Interpolate() (interfaces.Expr, error) {
-	fields := []*ExprStructField{}
-	for _, x := range obj.Fields {
-		interpolated, err := x.Value.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		field := &ExprStructField{
-			Name:  x.Name, // don't interpolate the key
-			Value: interpolated,
-		}
-		fields = append(fields, field)
-	}
-	return &ExprStruct{
-		scope:  obj.scope,
-		typ:    obj.typ,
-		Fields: fields,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *ExprStruct) Copy() (interfaces.Expr, error) {
 	copied := false
@@ -6633,40 +6183,6 @@ func (obj *ExprFunc) Init(data *interfaces.Data) error {
 	return nil
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *ExprFunc) Interpolate() (interfaces.Expr, error) {
-	var body interfaces.Expr
-	if obj.Body != nil {
-		var err error
-		body, err = obj.Body.Interpolate()
-		if err != nil {
-			return nil, errwrap.Wrapf(err, "could not interpolate Body")
-		}
-	}
-
-	args := obj.Args
-	if obj.Args == nil {
-		args = []*interfaces.Arg{}
-	}
-
-	return &ExprFunc{
-		data:     obj.data,
-		scope:    obj.scope,
-		typ:      obj.typ,
-		Title:    obj.Title,
-		Args:     args,
-		Return:   obj.Return,
-		Body:     body,
-		Function: obj.Function,
-		function: obj.function,
-		Values:   obj.Values,
-		V:        obj.V,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 // All the constants aren't copied, because we don't want to duplicate them
 // unnecessarily in the function graph. For example, an static integer will not
@@ -6680,7 +6196,6 @@ func (obj *ExprFunc) Copy() (interfaces.Expr, error) {
 	var body interfaces.Expr
 	if obj.Body != nil {
 		var err error
-		//body, err = obj.Body.Interpolate() // an inefficient copy works!
 		body, err = obj.Body.Copy()
 		if err != nil {
 			return nil, err
@@ -7348,39 +6863,6 @@ func (obj *ExprCall) Init(data *interfaces.Data) error {
 		}
 	}
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *ExprCall) Interpolate() (interfaces.Expr, error) {
-	args := []interfaces.Expr{}
-	for _, x := range obj.Args {
-		interpolated, err := x.Interpolate()
-		if err != nil {
-			return nil, err
-		}
-		args = append(args, interpolated)
-	}
-
-	orig := obj
-	if obj.orig != nil { // preserve the original pointer (the identifier!)
-		orig = obj.orig
-	}
-
-	return &ExprCall{
-		data:  obj.data,
-		scope: obj.scope,
-		typ:   obj.typ,
-		// XXX: Copy copies this, do we want to here as well? (or maybe
-		// we want to do it here, but not in Copy?)
-		expr: obj.expr,
-		orig: orig,
-		V:    obj.V,
-		Name: obj.Name,
-		Args: args,
-		Var:  obj.Var,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.
@@ -8353,19 +7835,6 @@ func (obj *ExprVar) Init(*interfaces.Data) error {
 	return langutil.ValidateVarName(obj.Name)
 }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it returns itself, since variable names cannot be interpolated. We don't
-// support variable, variables or anything crazy like that.
-func (obj *ExprVar) Interpolate() (interfaces.Expr, error) {
-	return &ExprVar{
-		scope: obj.scope,
-		typ:   obj.typ,
-		Name:  obj.Name,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 // This intentionally returns a copy, because if a function (usually a lambda)
 // that is used more than once, contains this variable, we will want each
@@ -8655,31 +8124,6 @@ func (obj *ExprIf) Init(data *interfaces.Data) error {
 
 	// no errors
 	return nil
-}
-
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-func (obj *ExprIf) Interpolate() (interfaces.Expr, error) {
-	condition, err := obj.Condition.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate Condition")
-	}
-	thenBranch, err := obj.ThenBranch.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate ThenBranch")
-	}
-	elseBranch, err := obj.ElseBranch.Interpolate()
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not interpolate ElseBranch")
-	}
-	return &ExprIf{
-		scope:      obj.scope,
-		typ:        obj.typ,
-		Condition:  condition,
-		ThenBranch: thenBranch,
-		ElseBranch: elseBranch,
-	}, nil
 }
 
 // Copy returns a light copy of this struct. Anything static will not be copied.

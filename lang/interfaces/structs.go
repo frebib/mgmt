@@ -44,16 +44,6 @@ func (obj *ExprAny) Apply(fn func(Node) error) error { return fn(obj) }
 // validate.
 func (obj *ExprAny) Init(*Data) error { return nil }
 
-// Interpolate returns a new node (aka a copy) once it has been expanded. This
-// generally increases the size of the AST when it is used. It calls Interpolate
-// on any child elements and builds the new node with those new node contents.
-// Here it simply returns itself, as no interpolation is possible.
-func (obj *ExprAny) Interpolate() (Expr, error) {
-	return &ExprAny{
-		typ: obj.typ,
-	}, nil
-}
-
 // Copy returns a light copy of this struct. Anything static will not be copied.
 func (obj *ExprAny) Copy() (Expr, error) {
 	return obj, nil // always static

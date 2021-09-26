@@ -45,14 +45,7 @@ type Pos struct {
 
 // InterpolateStr interpolates a string and returns the representative AST. This
 // particular implementation uses the hashicorp hil library and syntax to do so.
-func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
-	var line, column int = -1, -1
-	var filename string
-	if pos != nil {
-		line = pos.Line
-		column = pos.Column
-		filename = pos.Filename
-	}
+func InterpolateStr(str string, pos *Pos) (interfaces.Expr, error) {
 	hilPos := hilast.Pos{
 		Line:     line,
 		Column:   column,
@@ -63,58 +56,31 @@ func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Exp
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "can't parse string interpolation: `%s`", str)
 	}
-	if data.Debug {
-		data.Logf("tree: %+v", tree)
-	}
 
-	transformData := &interfaces.Data{
-		// TODO: add missing fields here if/when needed
-		Fs:         data.Fs,
-		FsURI:      data.FsURI,
-		Base:       data.Base,
-		Files:      data.Files,
-		Imports:    data.Imports,
-		Metadata:   data.Metadata,
-		Modules:    data.Modules,
-		Downloader: data.Downloader,
-		//World:      data.World,
-		Prefix: data.Prefix,
-		Debug:  data.Debug,
-		Logf: func(format string, v ...interface{}) {
-			data.Logf("transform: "+format, v...)
-		},
-	}
-	result, err := hilTransform(tree, transformData)
+	result, err := hilTransform(tree)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "error running AST map: `%s`", str)
 	}
-	if data.Debug {
-		data.Logf("transform: %+v", result)
-	}
 
 	// make sure to run the Init on the new expression
-	return result, errwrap.Wrapf(result.Init(data), "init failed")
+	return result, nil
 }
 
 // hilTransform returns the AST equivalent of the hil AST.
-func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, error) {
+func hilTransform(root hilast.Node) (interfaces.Expr, error) {
 	switch node := root.(type) {
 	case *hilast.Output: // common root node
-		if data.Debug {
-			data.Logf("got output type: %+v", node)
-		}
-
 		if len(node.Exprs) == 0 {
 			return nil, fmt.Errorf("no expressions found")
 		}
 		if len(node.Exprs) == 1 {
-			return hilTransform(node.Exprs[0], data)
+			return hilTransform(node.Exprs[0])
 		}
 
 		// assumes len > 1
 		args := []interfaces.Expr{}
 		for _, n := range node.Exprs {
-			expr, err := hilTransform(n, data)
+			expr, err := hilTransform(n)
 			if err != nil {
 				return nil, errwrap.Wrapf(err, "root failed")
 			}
@@ -130,12 +96,9 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 		return result, nil
 
 	case *hilast.Call:
-		if data.Debug {
-			data.Logf("got function type: %+v", node)
-		}
 		args := []interfaces.Expr{}
 		for _, n := range node.Args {
-			arg, err := hilTransform(n, data)
+			arg, err := hilTransform(n)
 			if err != nil {
 				return nil, fmt.Errorf("call failed: %+v", err)
 			}
@@ -148,10 +111,6 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 		}, nil
 
 	case *hilast.LiteralNode: // string, int, etc...
-		if data.Debug {
-			data.Logf("got literal type: %+v", node)
-		}
-
 		switch node.Typex {
 		case hilast.TypeBool:
 			return &ExprBool{
@@ -183,9 +142,6 @@ func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, err
 		}
 
 	case *hilast.VariableAccess: // variable lookup
-		if data.Debug {
-			data.Logf("got variable access type: %+v", node)
-		}
 		return &ExprVar{
 			Name: node.Name,
 		}, nil

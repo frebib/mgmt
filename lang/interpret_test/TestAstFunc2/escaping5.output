@@ -1,1 +1,1 @@
-# err: errInterpolate: parser failed: cannot parse string: X: there is no \j sequence
+# err: errLexParse: parser failed: cannot parse string: X: there is no \j sequence
