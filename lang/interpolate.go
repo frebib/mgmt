@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+//go:build !interpolatehil
+// +build !interpolatehil
+
 package lang // TODO: move this into a sub package of lang/$name?
 
 import (
@@ -23,16 +26,6 @@ import (
 	"github.com/purpleidea/mgmt/lang/interfaces"
 	"github.com/purpleidea/mgmt/lang/interpolate"
 	"github.com/purpleidea/mgmt/util/errwrap"
-
-	"github.com/hashicorp/hil"
-	hilast "github.com/hashicorp/hil/ast"
-)
-
-const (
-	// UseHilInterpolation specifies that we use the legacy Hil interpolate.
-	// This can't properly escape a $ in the standard way. It's here in case
-	// someone wants to play with it and examine how the AST stuff worked...
-	UseHilInterpolation = false
 )
 
 // Pos represents a position in the code.
@@ -43,21 +36,9 @@ type Pos struct {
 	Filename string // optional source filename, if known
 }
 
-// InterpolateStr interpolates a string and returns the representative AST.
-func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
-	if data.Debug {
-		data.Logf("interpolating: %s", str)
-	}
-
-	if UseHilInterpolation {
-		return InterpolateHil(str, pos, data)
-	}
-	return InterpolateRagel(str, pos, data)
-}
-
-// InterpolateRagel interpolates a string and returns the representative AST. It
+// InterpolateStr interpolates a string and returns the representative AST. It
 // uses the ragel parser to perform the string interpolation.
-func InterpolateRagel(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
+func InterpolateStr(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
 	sequence, err := interpolate.Parse(str)
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "parser failed")
@@ -104,176 +85,6 @@ func InterpolateRagel(str string, pos *Pos, data *interfaces.Data) (interfaces.E
 	}
 
 	return result, errwrap.Wrapf(result.Init(data), "init failed")
-}
-
-// InterpolateHil interpolates a string and returns the representative AST. This
-// particular implementation uses the hashicorp hil library and syntax to do so.
-func InterpolateHil(str string, pos *Pos, data *interfaces.Data) (interfaces.Expr, error) {
-	var line, column int = -1, -1
-	var filename string
-	if pos != nil {
-		line = pos.Line
-		column = pos.Column
-		filename = pos.Filename
-	}
-	hilPos := hilast.Pos{
-		Line:     line,
-		Column:   column,
-		Filename: filename,
-	}
-	// should not error on plain strings
-	tree, err := hil.ParseWithPosition(str, hilPos)
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "can't parse string interpolation: `%s`", str)
-	}
-	if data.Debug {
-		data.Logf("tree: %+v", tree)
-	}
-
-	transformData := &interfaces.Data{
-		// TODO: add missing fields here if/when needed
-		Fs:         data.Fs,
-		FsURI:      data.FsURI,
-		Base:       data.Base,
-		Files:      data.Files,
-		Imports:    data.Imports,
-		Metadata:   data.Metadata,
-		Modules:    data.Modules,
-		Downloader: data.Downloader,
-		//World:      data.World,
-		Prefix: data.Prefix,
-		Debug:  data.Debug,
-		Logf: func(format string, v ...interface{}) {
-			data.Logf("transform: "+format, v...)
-		},
-	}
-	result, err := hilTransform(tree, transformData)
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "error running AST map: `%s`", str)
-	}
-	if data.Debug {
-		data.Logf("transform: %+v", result)
-	}
-
-	// make sure to run the Init on the new expression
-	return result, errwrap.Wrapf(result.Init(data), "init failed")
-}
-
-// hilTransform returns the AST equivalent of the hil AST.
-func hilTransform(root hilast.Node, data *interfaces.Data) (interfaces.Expr, error) {
-	switch node := root.(type) {
-	case *hilast.Output: // common root node
-		if data.Debug {
-			data.Logf("got output type: %+v", node)
-		}
-
-		if len(node.Exprs) == 0 {
-			return nil, fmt.Errorf("no expressions found")
-		}
-		if len(node.Exprs) == 1 {
-			return hilTransform(node.Exprs[0], data)
-		}
-
-		// assumes len > 1
-		args := []interfaces.Expr{}
-		for _, n := range node.Exprs {
-			expr, err := hilTransform(n, data)
-			if err != nil {
-				return nil, errwrap.Wrapf(err, "root failed")
-			}
-			args = append(args, expr)
-		}
-
-		// XXX: i think we should be adding these args together, instead
-		// of grouping for example...
-		result, err := concatExprListIntoCall(args)
-		if err != nil {
-			return nil, errwrap.Wrapf(err, "function grouping failed")
-		}
-		return result, nil
-
-	case *hilast.Call:
-		if data.Debug {
-			data.Logf("got function type: %+v", node)
-		}
-		args := []interfaces.Expr{}
-		for _, n := range node.Args {
-			arg, err := hilTransform(n, data)
-			if err != nil {
-				return nil, fmt.Errorf("call failed: %+v", err)
-			}
-			args = append(args, arg)
-		}
-
-		return &ExprCall{
-			Name: node.Func, // name
-			Args: args,
-		}, nil
-
-	case *hilast.LiteralNode: // string, int, etc...
-		if data.Debug {
-			data.Logf("got literal type: %+v", node)
-		}
-
-		switch node.Typex {
-		case hilast.TypeBool:
-			return &ExprBool{
-				V: node.Value.(bool),
-			}, nil
-
-		case hilast.TypeString:
-			return &ExprStr{
-				V: node.Value.(string),
-			}, nil
-
-		case hilast.TypeInt:
-			return &ExprInt{
-				// node.Value is an int stored as an interface
-				V: int64(node.Value.(int)),
-			}, nil
-
-		case hilast.TypeFloat:
-			return &ExprFloat{
-				V: node.Value.(float64),
-			}, nil
-
-		// TODO: should we handle these too?
-		//case hilast.TypeList:
-		//case hilast.TypeMap:
-
-		default:
-			return nil, fmt.Errorf("unmatched type: %T", node)
-		}
-
-	case *hilast.VariableAccess: // variable lookup
-		if data.Debug {
-			data.Logf("got variable access type: %+v", node)
-		}
-		return &ExprVar{
-			Name: node.Name,
-		}, nil
-
-	//case *hilast.Index:
-	//	if va, ok := node.Target.(*hilast.VariableAccess); ok {
-	//		v, err := NewInterpolatedVariable(va.Name)
-	//		if err != nil {
-	//			resultErr = err
-	//			return n
-	//		}
-	//		result = append(result, v)
-	//	}
-	//	if va, ok := node.Key.(*hilast.VariableAccess); ok {
-	//		v, err := NewInterpolatedVariable(va.Name)
-	//		if err != nil {
-	//			resultErr = err
-	//			return n
-	//		}
-	//		result = append(result, v)
-	//	}
-
-	default:
-		return nil, fmt.Errorf("unmatched type: %+v", node)
-	}
 }
 
 // concatExprListIntoCall takes a list of expressions, and combines them into an
