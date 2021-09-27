@@ -144,16 +144,15 @@ fi
 [ -e "$GOBIN/mgmt" ] && rm -f "$GOBIN/mgmt"	# the `go get` version has no -X
 
 fold_start "Install golang tools"
-# TODO: change this for golang 1.17
-go get github.com/blynn/nex				# for lexing
-go get golang.org/x/tools/cmd/goyacc			# formerly `go tool yacc`
-go get golang.org/x/tools/cmd/stringer			# for automatic stringer-ing
-go get golang.org/x/lint/golint				# for `golint`-ing
-go get golang.org/x/tools/cmd/goimports		# for fmt
-go get github.com/kevinburke/go-bindata/go-bindata	# for compiling in non golang files
-go get github.com/dvyukov/go-fuzz/go-fuzz		# for fuzzing the mcl lang bits
+go install github.com/blynn/nex@latest				# for lexing
+go install golang.org/x/tools/cmd/goyacc@latest			# formerly `go tool yacc`
+go install golang.org/x/tools/cmd/stringer@latest			# for automatic stringer-ing
+go install golang.org/x/lint/golint@latest				# for `golint`-ing
+go install golang.org/x/tools/cmd/goimports@latest		# for fmt
+go install github.com/kevinburke/go-bindata/go-bindata@latest	# for compiling in non golang files
+go install github.com/dvyukov/go-fuzz/go-fuzz@latest		# for fuzzing the mcl lang bits
 if in_ci; then
-	go get -u gopkg.in/alecthomas/gometalinter.v1 && \
+	go install -u gopkg.in/alecthomas/gometalinter.v1@latest && \
 	mv "$(dirname $(command -v gometalinter.v1))/gometalinter.v1" "$(dirname $(command -v gometalinter.v1))/gometalinter" && \
 	gometalinter --install	# bonus
 fi
