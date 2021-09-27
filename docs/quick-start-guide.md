@@ -63,19 +63,17 @@ export GOPATH=$HOME/gopath
 
 #### Getting the mgmt code and associated dependencies
 
-* Download the `mgmt` code into the `GOPATH`, and switch to that directory:
+* Download the `mgmt` code and switch to that directory:
 
 ```shell
-[ -z "$GOPATH" ] && mkdir ~/go/ || mkdir -p $GOPATH/src/github.com/purpleidea/
-cd $GOPATH/src/github.com/purpleidea/ || cd ~/go/
-git clone --recursive https://github.com/purpleidea/mgmt/
-cd $GOPATH/src/github.com/purpleidea/mgmt/ || cd ~/go/src/github.com/purpleidea/mgmt/
+git clone --recursive https://github.com/purpleidea/mgmt/ ~/mgmt
+cd ~/mgmt
 ```
 
 * Add `$GOPATH/bin` to `$PATH`
 
 ```shell
-export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:${GOBIN:${GOPATH/bin}}
 ```
 
 * Run `make deps` to install system and golang dependencies. Take a look at

@@ -50,8 +50,6 @@ var _ afero.Fs = &etcdfs.Fs{}
 // runEtcd starts etcd locally via the mgmt binary. It returns a function to
 // kill the process which the caller must use to clean up.
 func runEtcd() (func() error, error) {
-	// Run mgmt as etcd backend to ensure that we are testing against the
-	// appropriate vendored version of etcd rather than some unknown version.
 	cmdName, err := integration.BinaryPath()
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "error getting binary path")
