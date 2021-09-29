@@ -18,7 +18,7 @@ require (
 	github.com/docker/go-units v0.4.0
 	github.com/godbus/dbus/v5 v5.0.4
 	github.com/gorilla/mux v1.7.3 // indirect
-	github.com/hashicorp/consul/api v1.10.1
+	github.com/hashicorp/consul/api v1.11.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/hil v0.0.0-20210521165536-27a72121fd40
 	github.com/iancoleman/strcase v0.2.0
