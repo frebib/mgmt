@@ -47,12 +47,11 @@ func (obj *Graph) GraphSync(newGraph *Graph, vertexCmpFn func(Vertex, Vertex) (b
 	oldGraph := obj.Copy() // work on a copy of the old graph
 	if oldGraph == nil {
 		var err error
-		oldGraph, err = NewGraph(newGraph.GetName()) // copy over the name
+		oldGraph = NewGraph() // copy over the name
 		if err != nil {
 			return errwrap.Wrapf(err, "GraphSync failed")
 		}
 	}
-	oldGraph.SetName(newGraph.GetName()) // overwrite the name
 
 	if vertexCmpFn == nil {
 		vertexCmpFn = strVertexCmpFn // use simple string cmp version

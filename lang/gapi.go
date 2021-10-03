@@ -222,7 +222,7 @@ func (obj *GAPI) Cli(cliInfo *gapi.CliInfo) (*gapi.Deploy, error) {
 		}
 	}
 
-	importGraph, err := pgraph.NewGraph("importGraph")
+	importGraph := pgraph.NewGraph()
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not create graph")
 	}
@@ -692,7 +692,7 @@ func (obj *GAPI) Get(getInfo *gapi.GetInfo) error {
 		return errwrap.Wrapf(err, "could not initialize downloader")
 	}
 
-	importGraph, err := pgraph.NewGraph("importGraph")
+	importGraph := pgraph.NewGraph()
 	if err != nil {
 		return errwrap.Wrapf(err, "could not create graph")
 	}

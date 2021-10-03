@@ -95,11 +95,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 		return nil, fmt.Errorf("%s: MyGAPI is not initialized", Name)
 	}
 
-	g, err := pgraph.NewGraph(obj.Name)
-	if err != nil {
-		return nil, err
-	}
-
+	g := pgraph.NewGraph()
 	content := "Delete me to trigger a notification!\n"
 	f0 := &resources.FileRes{
 		Path:    "/tmp/mgmt/README",

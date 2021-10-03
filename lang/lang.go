@@ -123,7 +123,7 @@ func (obj *Lang) Init() error {
 		obj.Logf("behold, the AST: %+v", ast)
 	}
 
-	importGraph, err := pgraph.NewGraph("importGraph")
+	importGraph := pgraph.NewGraph()
 	if err != nil {
 		return errwrap.Wrapf(err, "could not create graph")
 	}

@@ -95,11 +95,7 @@ func (obj *MyGAPI) Init(data *gapi.Data) error {
 }
 
 func (obj *MyGAPI) subGraph() (*pgraph.Graph, error) {
-	g, err := pgraph.NewGraph(obj.Name)
-	if err != nil {
-		return nil, err
-	}
-
+	g := pgraph.NewGraph()
 	f1 := &resources.FileRes{
 		Path:  "/tmp/mgmt/sub1",
 		State: "present",
@@ -118,11 +114,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 		return nil, fmt.Errorf("%s: MyGAPI is not initialized", Name)
 	}
 
-	g, err := pgraph.NewGraph(obj.Name)
-	if err != nil {
-		return nil, err
-	}
-
+	g:= pgraph.NewGraph()
 	content := "I created a subgraph!\n"
 	f0 := &resources.FileRes{
 		Path:    "/tmp/mgmt/README",

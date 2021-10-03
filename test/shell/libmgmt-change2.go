@@ -63,7 +63,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 	}
 
 	var err error
-	g, err := pgraph.NewGraph(obj.Name)
+	g := pgraph.NewGraph()
 	if err != nil {
 		return nil, err
 	}

@@ -173,17 +173,9 @@ func (obj *GraphConfig) Parse(data []byte) error {
 func (obj *GraphConfig) NewGraphFromConfig(hostname string, world engine.World, noop bool) (*pgraph.Graph, error) {
 	// hostname is the uuid for the host
 
-	var graph *pgraph.Graph // new graph to return
-	var err error
-	graph, err = pgraph.NewGraph("Graph") // give graph a default name
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not run NewGraphFromConfig() properly")
-	}
+	graph := pgraph.NewGraph() // give graph a default name
 
 	var lookup = make(map[string]map[string]pgraph.Vertex)
-
-	// TODO: if defined (somehow)...
-	graph.SetName(obj.Graph) // set graph name
 
 	var keep []pgraph.Vertex      // list of vertex which are the same in new graph
 	var resourceList []engine.Res // list of resources to export

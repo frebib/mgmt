@@ -80,12 +80,7 @@ func (obj *GAPI) Graph() (*pgraph.Graph, error) {
 	}
 
 	obj.data.Logf("generating empty graph...")
-	g, err := pgraph.NewGraph("empty")
-	if err != nil {
-		return nil, err
-	}
-
-	return g, nil
+	return pgraph.NewGraph(), nil
 }
 
 // Next returns nil errors every time there could be a new graph.

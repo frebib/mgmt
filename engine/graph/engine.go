@@ -77,10 +77,7 @@ func (obj *Engine) Init() error {
 		return fmt.Errorf("the Hostname is empty")
 	}
 
-	var err error
-	if obj.graph, err = pgraph.NewGraph("graph"); err != nil {
-		return err
-	}
+	obj.graph = pgraph.NewGraph()
 
 	if obj.Prefix == "" || obj.Prefix == "/" {
 		return fmt.Errorf("the prefix of `%s` is invalid", obj.Prefix)
@@ -403,7 +400,8 @@ func (obj *Engine) Pause(fastPause bool) error {
 
 // Close triggers a shutdown. Engine must be already paused before this is run.
 func (obj *Engine) Close() error {
-	emptyGraph, reterr := pgraph.NewGraph("empty")
+	var reterr error
+	emptyGraph := pgraph.NewGraph()
 
 	// this is a graph switch (graph sync) that switches to an empty graph!
 	if err := obj.Load(emptyGraph); err != nil { // copy in empty graph

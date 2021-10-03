@@ -22,7 +22,6 @@ import (
 
 	"github.com/purpleidea/mgmt/lang/types"
 	"github.com/purpleidea/mgmt/pgraph"
-	"github.com/purpleidea/mgmt/util/errwrap"
 )
 
 // ExprAny is a placeholder expression that is used for type unification hacks.
@@ -62,10 +61,7 @@ func (obj *ExprAny) Copy() (Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprAny) Ordering(produces map[string]Node) (*pgraph.Graph, map[Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[Node]string)
@@ -117,10 +113,7 @@ func (obj *ExprAny) Unify() ([]Invariant, error) {
 // children might. This returns a graph with a single vertex (itself) in it, and
 // the edges from all of the child graphs to this.
 func (obj *ExprAny) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("any")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 	return graph, nil
 }

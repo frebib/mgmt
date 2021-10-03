@@ -47,11 +47,7 @@ func mergeGraphs(graphFromLang, graphFromPuppet *pgraph.Graph) (*pgraph.Graph, e
 		return nil, fmt.Errorf("cannot merge graphs until both child graphs are loaded")
 	}
 
-	result, err := pgraph.NewGraph(graphFromLang.Name + "+" + graphFromPuppet.Name)
-	if err != nil {
-		return nil, err
-	}
-
+	result := pgraph.NewGraph()
 	mergeTargets := make(map[string]pgraph.Vertex)
 
 	// first add all vertices from the lang graph

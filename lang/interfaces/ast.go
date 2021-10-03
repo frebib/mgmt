@@ -37,7 +37,16 @@ type Node interface {
 	// Apply is a general purpose iterator method that operates on any node.
 	Apply(fn func(Node) error) error
 
+	//Children() []Node
+
+	// Graph returns the reactive function graph expressed by this node.
+	Graph() (*pgraph.Graph, error)
+
 	//Parent() Node // TODO: should we implement this?
+}
+
+func x() {
+	pgraph.NewGraph()
 }
 
 // Stmt represents a statement node in the language. A stmt could be a resource,
@@ -70,9 +79,6 @@ type Stmt interface {
 	// so recursively on any children elements that exist in the AST, and
 	// returns the collection to the caller.
 	Unify() ([]Invariant, error)
-
-	// Graph returns the reactive function graph expressed by this node.
-	Graph() (*pgraph.Graph, error)
 
 	// Output returns the output that this "program" produces. This output
 	// is what is used to build the output graph.
@@ -118,9 +124,6 @@ type Expr interface {
 	// so recursively on any children elements that exist in the AST, and
 	// returns the collection to the caller.
 	Unify() ([]Invariant, error)
-
-	// Graph returns the reactive function graph expressed by this node.
-	Graph() (*pgraph.Graph, error)
 
 	// Func returns a function that represents this reactively.
 	Func() (Func, error)

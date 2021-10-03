@@ -34,7 +34,7 @@ import (
 
 func TestFileAutoEdge1(t *testing.T) {
 
-	g, err := pgraph.NewGraph("TestGraph")
+	g := pgraph.NewGraph()
 	if err != nil {
 		t.Errorf("error creating graph: %v", err)
 		return

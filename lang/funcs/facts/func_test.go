@@ -30,7 +30,7 @@ import (
 
 func TestFuncGraph0(t *testing.T) {
 	t.Logf("Hello!")
-	g, _ := pgraph.NewGraph("empty") // empty graph
+	g := pgraph.NewGraph() // empty graph
 
 	obj := &funcs.Engine{
 		Graph: g,

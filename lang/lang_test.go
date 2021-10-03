@@ -350,7 +350,7 @@ func TestInterpretMany(t *testing.T) {
 	//	})
 	//}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r, _ := engine.NewNamedResource("test", "t")
 		x := r.(*resources.TestRes)
 		i := int64(42 + 13)
@@ -368,7 +368,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r, _ := engine.NewNamedResource("test", "t")
 		x := r.(*resources.TestRes)
 		i := int64(42 + 13 + 99)
@@ -386,7 +386,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r, _ := engine.NewNamedResource("test", "t")
 		x := r.(*resources.TestRes)
 		i := int64(42 + 13 - 99)
@@ -404,7 +404,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		x1 := r1.(*resources.TestRes)
 		s1 := "hello"
@@ -425,7 +425,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		r2, _ := engine.NewNamedResource("test", "t2")
 		x1 := r1.(*resources.TestRes)
@@ -481,7 +481,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		r2, _ := engine.NewNamedResource("test", "t2")
 		x1 := r1.(*resources.TestRes)
@@ -535,7 +535,7 @@ func TestInterpretMany(t *testing.T) {
 	//	})
 	//}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		r2, _ := engine.NewNamedResource("test", "t2")
 		x1 := r1.(*resources.TestRes)
@@ -561,7 +561,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		r2, _ := engine.NewNamedResource("test", "t2")
 		x1 := r1.(*resources.TestRes)
@@ -587,7 +587,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "hey1")
 		r2, _ := engine.NewNamedResource("test", "hey2")
 		x1 := r1.(*resources.TestRes)
@@ -613,7 +613,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		x1 := r1.(*resources.TestRes)
 		s1 := "hello"
@@ -635,7 +635,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		x1 := r1.(*resources.TestRes)
 		s1 := "hello"
@@ -706,7 +706,7 @@ func TestInterpretMany(t *testing.T) {
 		})
 	}
 	{
-		graph, _ := pgraph.NewGraph("g")
+		graph := pgraph.NewGraph()
 		r1, _ := engine.NewNamedResource("test", "t1")
 		r2, _ := engine.NewNamedResource("test", "t2")
 		x1 := r1.(*resources.TestRes)

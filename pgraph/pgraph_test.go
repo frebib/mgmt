@@ -77,7 +77,7 @@ func TestAddVertex1(t *testing.T) {
 }
 
 func TestAddEdge1(t *testing.T) {
-	g, _ := NewGraph("g")
+	g := NewGraph()
 
 	v1 := NV("v1")
 	v2 := NV("v2")
@@ -98,7 +98,7 @@ func TestAddEdge1(t *testing.T) {
 }
 
 func TestDFS1(t *testing.T) {
-	G, _ := NewGraph("g3")
+	G := NewGraph()
 	v1 := NV("v1")
 	v2 := NV("v2")
 	v3 := NV("v3")
@@ -138,7 +138,7 @@ func TestDFS1(t *testing.T) {
 }
 
 func TestDFS2(t *testing.T) {
-	G, _ := NewGraph("g4")
+	G := NewGraph()
 	v1 := NV("v1")
 	v2 := NV("v2")
 	v3 := NV("v3")
@@ -160,7 +160,7 @@ func TestDFS2(t *testing.T) {
 }
 
 func TestFilterGraph1(t *testing.T) {
-	G, _ := NewGraph("g5")
+	G := NewGraph()
 	v1 := NV("v1")
 	v2 := NV("v2")
 	v3 := NV("v3")
@@ -193,7 +193,7 @@ func TestFilterGraph1(t *testing.T) {
 }
 
 func TestDisconnectedGraphs1(t *testing.T) {
-	G, _ := NewGraph("g6")
+	G := NewGraph()
 	v1 := NV("v1")
 	v2 := NV("v2")
 	v3 := NV("v3")

@@ -95,7 +95,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 		return nil, fmt.Errorf("%s: MyGAPI is not initialized", Name)
 	}
 
-	g, err := pgraph.NewGraph(obj.Name)
+	g := pgraph.NewGraph()
 	if err != nil {
 		return nil, err
 	}

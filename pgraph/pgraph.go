@@ -33,8 +33,6 @@ import (
 // * IOW, you might see package -> file -> service (where package runs first)
 // * This is also the direction that the notify should happen in...
 type Graph struct {
-	Name string
-
 	adjacency map[Vertex]map[Vertex]Edge // Vertex -> Vertex (edge)
 	kv        map[string]interface{}     // some values associated with the graph
 }
@@ -51,28 +49,12 @@ type Edge interface {
 	fmt.Stringer // String() string
 }
 
-// Init initializes the graph which populates all the internal structures.
-func (g *Graph) Init() error {
-	if g.Name == "" { // FIXME: is this really a good requirement?
-		return fmt.Errorf("can't initialize graph with empty name")
-	}
-
-	if g.adjacency == nil {
-		g.adjacency = make(map[Vertex]map[Vertex]Edge)
-	}
-	//g.kv = make(map[string]interface{}) // not required
-	return nil
-}
-
 // NewGraph builds a new graph.
-func NewGraph(name string) (*Graph, error) {
-	g := &Graph{
-		Name: name,
+func NewGraph() *Graph {
+	return &Graph{
+		adjacency: make(map[Vertex]map[Vertex]Edge),
+		//kv:        make(map[string]interface{}), // not required
 	}
-	if err := g.Init(); err != nil {
-		return nil, err
-	}
-	return g, nil
 }
 
 // Value returns a value stored alongside the graph in a particular key.
@@ -95,7 +77,6 @@ func (g *Graph) Copy() *Graph {
 		return g
 	}
 	newGraph := &Graph{
-		Name:      g.Name,
 		adjacency: make(map[Vertex]map[Vertex]Edge, len(g.adjacency)),
 		kv:        g.kv,
 	}
@@ -103,16 +84,6 @@ func (g *Graph) Copy() *Graph {
 		newGraph.adjacency[k] = v // copy
 	}
 	return newGraph
-}
-
-// GetName returns the name of the graph.
-func (g *Graph) GetName() string {
-	return g.Name
-}
-
-// SetName sets the name of the graph.
-func (g *Graph) SetName(name string) {
-	g.Name = name
 }
 
 // AddVertex uses variadic input to add all listed vertices to the graph.
@@ -387,11 +358,8 @@ func (g *Graph) DFS(start Vertex) []Vertex {
 }
 
 // FilterGraph builds a new graph containing only vertices from the list.
-func (g *Graph) FilterGraph(name string, vertices []Vertex) (*Graph, error) {
-	newGraph := &Graph{Name: name}
-	if err := newGraph.Init(); err != nil {
-		return nil, errwrap.Wrapf(err, "could not run FilterGraph() properly")
-	}
+func (g *Graph) FilterGraph(vertices []Vertex) (*Graph, error) {
+	newGraph := NewGraph()
 	for k1, x := range g.adjacency {
 		for k2, e := range x {
 			//log.Printf("Filter: %s -> %s # %s", k1.Name, k2.Name, e.Name)
@@ -421,7 +389,7 @@ func (g *Graph) DisconnectedGraphs() ([]*Graph, error) {
 		// dfs through the graph
 		dfs := g.DFS(start)
 		// filter all the collected elements into a new graph
-		newgraph, err := g.FilterGraph(g.Name, dfs)
+		newgraph, err := g.FilterGraph(dfs)
 		if err != nil {
 			return nil, errwrap.Wrapf(err, "could not run DisconnectedGraphs() properly")
 		}

@@ -95,7 +95,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 		return nil, fmt.Errorf("%s: MyGAPI is not initialized", Name)
 	}
 
-	g, err := pgraph.NewGraph(obj.Name)
+	g := pgraph.NewGraph()
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (obj *MyGAPI) Graph() (*pgraph.Graph, error) {
 	g.AddVertex(f0)
 
 	// create a subgraph to add *into* a graph resource
-	subGraph, err := pgraph.NewGraph(fmt.Sprintf("%s->subgraph", obj.Name))
+	subGraph := pgraph.NewGraph()
 	if err != nil {
 		return nil, err
 	}

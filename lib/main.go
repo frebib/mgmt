@@ -772,7 +772,7 @@ func (obj *Main) Run() error {
 				if filter == "" {
 					filter = "dot" // directed graph default
 				}
-				if err := obj.ge.Graph().ExecGraphviz(filter, obj.Graphviz, hostname); err != nil {
+				if err := obj.ge.Graph().ExecGraphviz("g", filter, obj.Graphviz, hostname); err != nil {
 					Logf("graphviz: %+v", err)
 				} else {
 					Logf("graphviz: successfully generated graph!")

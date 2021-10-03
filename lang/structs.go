@@ -179,10 +179,7 @@ func (obj *StmtBind) Copy() (interfaces.Stmt, error) {
 // by running an early (second) loop through the program and peering into this
 // Stmt and extracting the produced name.
 func (obj *StmtBind) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -253,7 +250,7 @@ func (obj *StmtBind) Graph() (*pgraph.Graph, error) {
 	// expression in the case of an ExprFunc lambda, since we copy it and
 	// build a new ExprFunc when it's used by ExprCall.
 	//return obj.Value.Graph() // nope!
-	return pgraph.NewGraph("stmtbind") // empty graph!
+	return pgraph.NewGraph(), nil // empty graph!
 }
 
 // Output for the bind statement produces no output. Any values of interest come
@@ -412,10 +409,7 @@ func (obj *StmtRes) Copy() (interfaces.Stmt, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtRes) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// Additional constraints: We know the name has to be satisfied before
@@ -584,10 +578,7 @@ func (obj *StmtRes) Graph() (*pgraph.Graph, error) {
 		}
 	}
 
-	graph, err := pgraph.NewGraph("res")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 
 	g, err := obj.Name.Graph()
 	if err != nil {
@@ -1159,10 +1150,7 @@ func (obj *StmtResField) Copy() (StmtResContents, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtResField) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -1286,10 +1274,7 @@ func (obj *StmtResField) Unify(kind string) ([]interfaces.Invariant, error) {
 // no outgoing edges have produced at least a single value, then the resources
 // know they're able to be built.
 func (obj *StmtResField) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("resfield")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 
 	g, err := obj.Value.Graph()
 	if err != nil {
@@ -1416,10 +1401,7 @@ func (obj *StmtResEdge) Copy() (StmtResContents, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtResEdge) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -1519,11 +1501,7 @@ func (obj *StmtResEdge) Unify(kind string) ([]interfaces.Invariant, error) {
 // no outgoing edges have produced at least a single value, then the resources
 // know they're able to be built.
 func (obj *StmtResEdge) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("resedge")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-
+	graph := pgraph.NewGraph()
 	g, err := obj.EdgeHalf.Graph()
 	if err != nil {
 		return nil, err
@@ -1670,10 +1648,7 @@ func (obj *StmtResMeta) Copy() (StmtResContents, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtResMeta) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -1854,11 +1829,7 @@ func (obj *StmtResMeta) Unify(kind string) ([]interfaces.Invariant, error) {
 // no outgoing edges have produced at least a single value, then the resources
 // know they're able to be built.
 func (obj *StmtResMeta) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("resmeta")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-
+	graph := pgraph.NewGraph()
 	g, err := obj.MetaExpr.Graph()
 	if err != nil {
 		return nil, err
@@ -1971,10 +1942,7 @@ func (obj *StmtEdge) Copy() (interfaces.Stmt, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtEdge) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -2110,11 +2078,7 @@ func (obj *StmtEdge) Unify() ([]interfaces.Invariant, error) {
 // outgoing function graph edges have produced at least a single value, then the
 // edges know they're able to be built.
 func (obj *StmtEdge) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("edge")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-
+	graph := pgraph.NewGraph()
 	for _, x := range obj.EdgeHalfList {
 		g, err := x.Graph()
 		if err != nil {
@@ -2490,10 +2454,7 @@ func (obj *StmtIf) Copy() (interfaces.Stmt, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtIf) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// Additional constraints: We know the condition has to be satisfied
@@ -2641,11 +2602,7 @@ func (obj *StmtIf) Unify() ([]interfaces.Invariant, error) {
 // XXX: is this completely true if we're running technically impure, but safe
 // built-in functions on both branches? Can we turn off half of this?
 func (obj *StmtIf) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("if")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-
+	graph := pgraph.NewGraph()
 	g, err := obj.Condition.Graph()
 	if err != nil {
 		return nil, err
@@ -2820,10 +2777,7 @@ func (obj *StmtProg) Copy() (interfaces.Stmt, error) {
 // different nodes could consume the same variable key.
 // TODO: deal with StmtImport's by returning them as first if necessary?
 func (obj *StmtProg) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	prod := make(map[string]interfaces.Node)
@@ -3564,7 +3518,7 @@ func (obj *StmtProg) SetScope(scope *interfaces.Scope) error {
 	// debugging visualizations
 	if obj.data.Debug && orderingGraphSingleton {
 		obj.data.Logf("running graphviz for ordering graph...")
-		if err := orderingGraph.ExecGraphviz("dot", "/tmp/graphviz-ordering.dot", ""); err != nil {
+		if err := orderingGraph.ExecGraphviz("g", "dot", "/tmp/graphviz-ordering.dot", ""); err != nil {
 			obj.data.Logf("graphviz: errored: %+v", err)
 		}
 		// Only generate the top-level one, to prevent overwriting this!
@@ -3700,10 +3654,7 @@ func (obj *StmtProg) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might.
 func (obj *StmtProg) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("prog")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 
 	// collect all graphs that need to be included
 	for _, x := range obj.Prog {
@@ -3888,10 +3839,7 @@ func (obj *StmtFunc) Copy() (interfaces.Stmt, error) {
 // by running an early (second) loop through the program and peering into this
 // Stmt and extracting the produced name.
 func (obj *StmtFunc) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -3954,7 +3902,7 @@ func (obj *StmtFunc) Unify() ([]interfaces.Invariant, error) {
 // the graph.
 func (obj *StmtFunc) Graph() (*pgraph.Graph, error) {
 	//return obj.Func.Graph() // nope!
-	return pgraph.NewGraph("stmtfunc") // do this in ExprCall instead
+	return pgraph.NewGraph(), nil // do this in ExprCall instead
 }
 
 // Output for the func statement produces no output. Any values of interest come
@@ -4057,10 +4005,7 @@ func (obj *StmtClass) Copy() (interfaces.Stmt, error) {
 // TODO: Is Ordering in StmtInclude done properly and in sync with this?
 // XXX: do we need to add ordering around named args, eg: obj.Args Name strings?
 func (obj *StmtClass) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// additional constraint...
@@ -4255,10 +4200,7 @@ func (obj *StmtInclude) Copy() (interfaces.Stmt, error) {
 // This can be used in SetScope so that it knows the correct order to run it in.
 // TODO: Is Ordering in StmtClass done properly and in sync with this?
 func (obj *StmtInclude) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	if obj.Name == "" {
@@ -4456,18 +4398,7 @@ func (obj *StmtInclude) Unify() ([]interfaces.Invariant, error) {
 // children might. This particular func statement adds its linked expression to
 // the graph.
 func (obj *StmtInclude) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("include")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-
-	g, err := obj.class.Graph()
-	if err != nil {
-		return nil, err
-	}
-	graph.AddGraph(g)
-
-	return graph, nil
+	return obj.class.Graph()
 }
 
 // Output returns the output that this include produces. This output is what is
@@ -4525,10 +4456,7 @@ func (obj *StmtImport) Copy() (interfaces.Stmt, error) {
 // This can be used in SetScope so that it knows the correct order to run it in.
 // Nothing special happens in this method, the import magic happens in StmtProg.
 func (obj *StmtImport) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -4557,8 +4485,7 @@ func (obj *StmtImport) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This particular statement just returns an empty graph.
 func (obj *StmtImport) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("import")
-	return graph, errwrap.Wrapf(err, "could not create graph")
+	return pgraph.NewGraph(), nil
 }
 
 // Output returns the output that this include produces. This output is what is
@@ -4616,10 +4543,7 @@ func (obj *StmtComment) Copy() (interfaces.Stmt, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *StmtComment) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -4644,11 +4568,7 @@ func (obj *StmtComment) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This particular graph does nothing clever.
 func (obj *StmtComment) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("comment")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
-	return graph, nil
+	return pgraph.NewGraph(), nil
 }
 
 // Output for the comment statement produces no output.
@@ -4696,10 +4616,7 @@ func (obj *ExprBool) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprBool) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -4746,10 +4663,7 @@ func (obj *ExprBool) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This returns a graph with a single vertex (itself) in it.
 func (obj *ExprBool) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("bool")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 	return graph, nil
 }
@@ -4867,10 +4781,7 @@ func (obj *ExprStr) Copy() (interfaces.Expr, error) {
 // build a map of consumed nodes, because none are consumed. The returned graph
 // is empty!
 func (obj *ExprStr) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -4917,10 +4828,7 @@ func (obj *ExprStr) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This returns a graph with a single vertex (itself) in it.
 func (obj *ExprStr) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("str")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 	return graph, nil
 }
@@ -4993,10 +4901,7 @@ func (obj *ExprInt) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprInt) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -5043,10 +4948,7 @@ func (obj *ExprInt) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This returns a graph with a single vertex (itself) in it.
 func (obj *ExprInt) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("int")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 	return graph, nil
 }
@@ -5121,10 +5023,7 @@ func (obj *ExprFloat) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprFloat) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -5171,10 +5070,7 @@ func (obj *ExprFloat) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This returns a graph with a single vertex (itself) in it.
 func (obj *ExprFloat) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("float")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 	return graph, nil
 }
@@ -5297,10 +5193,7 @@ func (obj *ExprList) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprList) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -5480,10 +5373,7 @@ func (obj *ExprList) Unify() ([]interfaces.Invariant, error) {
 // children might. This returns a graph with a single vertex (itself) in it, and
 // the edges from all of the child graphs to this.
 func (obj *ExprList) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("list")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// each list element needs to point to the final list expression
@@ -5705,10 +5595,7 @@ func (obj *ExprMap) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprMap) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -5956,10 +5843,7 @@ func (obj *ExprMap) Unify() ([]interfaces.Invariant, error) {
 // children might. This returns a graph with a single vertex (itself) in it, and
 // the edges from all of the child graphs to this.
 func (obj *ExprMap) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("map")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// each map key value pair needs to point to the final map expression
@@ -6215,10 +6099,7 @@ func (obj *ExprStruct) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprStruct) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -6368,10 +6249,7 @@ func (obj *ExprStruct) Unify() ([]interfaces.Invariant, error) {
 // children might. This returns a graph with a single vertex (itself) in it, and
 // the edges from all of the child graphs to this.
 func (obj *ExprStruct) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("struct")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// each struct field needs to point to the final struct expression
@@ -6735,10 +6613,7 @@ func (obj *ExprFunc) Copy() (interfaces.Expr, error) {
 // This can be used in SetScope so that it knows the correct order to run it in.
 // XXX: do we need to add ordering around named args, eg: obj.Args Name strings?
 func (obj *ExprFunc) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	cons := make(map[interfaces.Node]string)
@@ -7179,10 +7054,7 @@ func (obj *ExprFunc) Unify() ([]interfaces.Invariant, error) {
 // that fulfill the Stmt interface do not produces vertices, where as their
 // children might. This returns a graph with a single vertex (itself) in it.
 func (obj *ExprFunc) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("func")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	if obj.Body != nil {
@@ -7443,10 +7315,7 @@ func (obj *ExprCall) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprCall) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	if obj.Name == "" {
@@ -8152,10 +8021,7 @@ func (obj *ExprCall) Graph() (*pgraph.Graph, error) {
 		return nil, fmt.Errorf("call doesn't contain an expr pointer yet")
 	}
 
-	graph, err := pgraph.NewGraph("call")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// argnames!
@@ -8382,10 +8248,7 @@ func (obj *ExprVar) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprVar) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	if obj.Name == "" {
@@ -8500,10 +8363,7 @@ func (obj *ExprVar) Unify() ([]interfaces.Invariant, error) {
 // to avoid duplicating production of the incoming input value from the bound
 // expression.
 func (obj *ExprVar) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("var")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// ??? = $foo (this is the foo)
@@ -8723,10 +8583,7 @@ func (obj *ExprIf) Copy() (interfaces.Expr, error) {
 // Ordering returns a graph of the scope ordering that represents the data flow.
 // This can be used in SetScope so that it knows the correct order to run it in.
 func (obj *ExprIf) Ordering(produces map[string]interfaces.Node) (*pgraph.Graph, map[interfaces.Node]string, error) {
-	graph, err := pgraph.NewGraph("ordering")
-	if err != nil {
-		return nil, nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	// Additional constraints: We know the condition has to be satisfied
@@ -8917,10 +8774,7 @@ func (obj *ExprIf) Unify() ([]interfaces.Invariant, error) {
 // XXX: is this completely true if we're running technically impure, but safe
 // built-in functions on both branches? Can we turn off half of this?
 func (obj *ExprIf) Graph() (*pgraph.Graph, error) {
-	graph, err := pgraph.NewGraph("if")
-	if err != nil {
-		return nil, errwrap.Wrapf(err, "could not create graph")
-	}
+	graph := pgraph.NewGraph()
 	graph.AddVertex(obj)
 
 	exprs := map[string]interfaces.Expr{

@@ -37,7 +37,7 @@ func interpret(ast interfaces.Stmt) (*pgraph.Graph, error) {
 		return nil, err
 	}
 
-	graph, err := pgraph.NewGraph("interpret") // give graph a default name
+	graph := pgraph.NewGraph() // give graph a default name
 	if err != nil {
 		return nil, errwrap.Wrapf(err, "could not create new graph")
 	}

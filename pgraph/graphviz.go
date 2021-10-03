@@ -34,7 +34,7 @@ const (
 
 // Graphviz outputs the graph in graphviz format.
 // https://en.wikipedia.org/wiki/DOT_%28graph_description_language%29
-func (g *Graph) Graphviz() (out string) {
+func (g *Graph) Graphviz(name string) (out string) {
 	//digraph g {
 	//	label="hello world";
 	//	node [shape=box];
@@ -47,8 +47,8 @@ func (g *Graph) Graphviz() (out string) {
 	//	B -> C [label=g];
 	//	D -> E [label=h];
 	//}
-	out += fmt.Sprintf("digraph \"%s\" {\n", g.GetName())
-	out += fmt.Sprintf("\tlabel=\"%s\";\n", g.GetName())
+	out += fmt.Sprintf("digraph \"%s\" {\n", name)
+	out += fmt.Sprintf("\tlabel=\"%s\";\n", name)
 	//out += "\tnode [shape=box];\n"
 	str := ""
 	// XXX: add determinism to this loop
@@ -87,7 +87,7 @@ func (g *Graph) Graphviz() (out string) {
 
 // ExecGraphviz writes out the graphviz data and runs the correct graphviz
 // filter command.
-func (g *Graph) ExecGraphviz(program, filename, hostname string) error {
+func (g *Graph) ExecGraphviz(name, program, filename, hostname string) error {
 
 	switch program {
 	case "dot", "neato", "twopi", "circo", "fdp":
@@ -107,7 +107,7 @@ func (g *Graph) ExecGraphviz(program, filename, hostname string) error {
 	uid, err1 := strconv.Atoi(os.Getenv("SUDO_UID"))
 	gid, err2 := strconv.Atoi(os.Getenv("SUDO_GID"))
 
-	err := ioutil.WriteFile(filename, []byte(g.Graphviz()), 0644)
+	err := ioutil.WriteFile(filename, []byte(g.Graphviz(name)), 0644)
 	if err != nil {
 		return fmt.Errorf("error writing to filename")
 	}
