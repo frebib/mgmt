@@ -35,7 +35,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/pborman/uuid v1.2.1
-	github.com/pin/tftp v0.0.0-20210809155059-0161c5dd2e96
+	github.com/pin/tftp/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/sanity-io/litter v1.5.1
