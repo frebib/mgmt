@@ -83,6 +83,8 @@ github.com/containerd/containerd v1.4.9 h1:JIw9mjVw4LsGmnA/Bqg9j9e+XB7soOJufrKUp
 github.com/containerd/containerd v1.4.9/go.mod h1:bC6axHOhabU15QhwfG7w5PipXdVtMXFTttgp+kVtyUA=
 github.com/coredhcp/coredhcp v0.0.0-20211012092557-3e75f3b9c460 h1:L9m9Bi5RNPxdYhmrv82rHQdB2HGKU0TALkO3SZVI7CU=
 github.com/coredhcp/coredhcp v0.0.0-20211012092557-3e75f3b9c460/go.mod h1:IKpQDuJjj7hRXIaidZ6e4o9FIPFOW2fEQBJEx3IeOGk=
+github.com/coredhcp/coredhcp v0.0.0-20211013084705-17ea62527738 h1:u6t1yHu3VXMowfuBZgkERbPVGU9E+g3Ioteqvh15spI=
+github.com/coredhcp/coredhcp v0.0.0-20211013084705-17ea62527738/go.mod h1:IKpQDuJjj7hRXIaidZ6e4o9FIPFOW2fEQBJEx3IeOGk=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.3.0 h1:wkHLiw0WNATZnSG7epLsujiMCgPAc9xhjJ4tgnAxmfM=

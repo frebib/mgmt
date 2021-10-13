@@ -7,7 +7,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/aws/aws-sdk-go v1.41.1
 	github.com/containerd/containerd v1.4.9 // indirect
-	github.com/coredhcp/coredhcp v0.0.0-20211012092557-3e75f3b9c460
+	github.com/coredhcp/coredhcp v0.0.0-20211013084705-17ea62527738
 	github.com/coreos/go-systemd/v22 v22.3.2
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/davecgh/go-spew v1.1.1
