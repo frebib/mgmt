@@ -24,7 +24,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/hil v0.0.0-20210521165536-27a72121fd40
 	github.com/iancoleman/strcase v0.2.0
-	github.com/insomniacslk/dhcp v0.0.0-20210827173440-b95caade3eac
+	github.com/insomniacslk/dhcp v0.0.0-20211026125128-ad197bcd36fd
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kylelemons/godebug v1.1.0
 	github.com/libvirt/libvirt-go v7.4.0+incompatible
