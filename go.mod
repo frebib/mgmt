@@ -17,7 +17,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/godbus/dbus/v5 v5.0.5
+	github.com/godbus/dbus/v5 v5.1.0
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/mux v1.7.2 // indirect
 	github.com/hashicorp/consul/api v1.11.0
