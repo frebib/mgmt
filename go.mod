@@ -22,7 +22,7 @@ require (
 	github.com/gorilla/mux v1.7.2 // indirect
 	github.com/hashicorp/consul/api v1.11.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/hil v0.0.0-20210521165536-27a72121fd40
+	github.com/hashicorp/hil v0.0.0-20231024160542-43d11d37940c
 	github.com/iancoleman/strcase v0.2.0
 	github.com/insomniacslk/dhcp v0.0.0-20210827173440-b95caade3eac
 	github.com/kr/pretty v0.2.1 // indirect
