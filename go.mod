@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.54.0 // indirect
 	github.com/Microsoft/go-winio v0.4.17 // indirect
-	github.com/aws/aws-sdk-go v1.41.1
+	github.com/aws/aws-sdk-go v1.48.11
 	github.com/containerd/containerd v1.4.9 // indirect
 	github.com/coredhcp/coredhcp v0.0.0-20211012092557-3e75f3b9c460
 	github.com/coreos/go-systemd/v22 v22.3.2
@@ -47,8 +47,8 @@ require (
 	go.etcd.io/etcd/client/pkg/v3 v3.5.0
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.etcd.io/etcd/server/v3 v3.5.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac
+	golang.org/x/crypto v0.14.0
+	golang.org/x/sys v0.13.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v2 v2.4.0
