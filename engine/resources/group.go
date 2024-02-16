@@ -246,9 +246,8 @@ func (obj *GroupRes) Cmp(r engine.Res) error {
 
 // GroupUID is the UID struct for GroupRes.
 type GroupUID struct {
-	engine.BaseUID
-	name string
-	gid  *uint32
+	Name string
+	Gid  *uint32
 }
 
 // AutoEdges returns the AutoEdge interface.
@@ -256,34 +255,23 @@ func (obj *GroupRes) AutoEdges() (engine.AutoEdge, error) {
 	return nil, nil
 }
 
-// IFF aka if and only if they are equivalent, return true. If not, false.
-func (obj *GroupUID) IFF(uid engine.ResUID) bool {
-	res, ok := uid.(*GroupUID)
-	if !ok {
-		return false
-	}
-	if obj.gid != nil && res.gid != nil {
-		if *obj.gid != *res.gid {
-			return false
-		}
-	}
-	if obj.name != "" && res.name != "" {
-		if obj.name != res.name {
-			return false
-		}
-	}
-	return true
-}
-
 // UIDs includes all params to make a unique identification of this object. Most
 // resources only return one, although some resources can return multiple.
 func (obj *GroupRes) UIDs() []engine.ResUID {
-	x := &GroupUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
-		gid:     obj.GID,
+	uids := []engine.ResUID{
+		// Reference the group by name
+		&GroupUID{
+			Name: obj.Name(),
+		},
 	}
-	return []engine.ResUID{x}
+	// Or reference the group by gid
+	if obj.GID != nil {
+		uids = append(uids, &GroupUID{Gid: obj.GID})
+	}
+	// XXX: should we emit a UID that is both name and group? Would anyone ever
+	// want to reference by both at the same time? They should just use one or
+	// the other (both would work)
+	return uids
 }
 
 // UnmarshalYAML is the custom unmarshal handler for this struct. It is

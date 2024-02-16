@@ -63,64 +63,19 @@ func (obj *AutoEdgeMeta) Cmp(aem *AutoEdgeMeta) error {
 }
 
 // The AutoEdge interface is used to implement the autoedges feature.
+// https://purpleidea.com/blog/2016/03/14/automatic-edges-in-mgmt/
 type AutoEdge interface {
+	// Next is an iterator that returns the next set of edges
 	Next() []ResUID   // call to get list of edges to add
 	Test([]bool) bool // call until false
 }
 
 // ResUID is a unique identifier for a resource, namely it's name, and the kind
-// ("type").
+// ("type") and all information required to uniquely identify the resource in
+// the global namespace.
 type ResUID interface {
-	fmt.Stringer // String() string
-
-	GetName() string
-	GetKind() string
-
-	IFF(ResUID) bool
-
-	IsReversed() bool // true means this resource happens before the generator
-}
-
-// The BaseUID struct is used to provide a unique resource identifier.
-type BaseUID struct {
-	Name string // name and kind are the values of where this is coming from
-	Kind string
-
-	Reversed *bool // piggyback edge information here
-}
-
-// GetName returns the name of the resource UID.
-func (obj *BaseUID) GetName() string {
-	return obj.Name
-}
-
-// GetKind returns the kind of the resource UID.
-func (obj *BaseUID) GetKind() string {
-	return obj.Kind
-}
-
-// String returns the canonical string representation for a resource UID.
-func (obj *BaseUID) String() string {
-	return fmt.Sprintf("%s[%s]", obj.GetKind(), obj.GetName())
-}
-
-// IFF looks at two UID's and if and only if they are equivalent, returns true.
-// If they are not equivalent, it returns false. Most resources will want to
-// override this method, since it does the important work of actually discerning
-// if two resources are identical in function.
-func (obj *BaseUID) IFF(uid ResUID) bool {
-	res, ok := uid.(*BaseUID)
-	if !ok {
-		return false
-	}
-	return obj.Name == res.Name
-}
-
-// IsReversed is part of the ResUID interface, and true means this resource
-// happens before the generator.
-func (obj *BaseUID) IsReversed() bool {
-	if obj.Reversed == nil {
-		panic("programming error!")
-	}
-	return *obj.Reversed
+	//comparable
+	//fmt.Stringer
+	//Name() string
+	//Kind() string
 }

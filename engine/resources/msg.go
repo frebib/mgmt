@@ -233,7 +233,6 @@ func (obj *MsgRes) Cmp(r engine.Res) error {
 
 // MsgUID is a unique representation for a MsgRes object.
 type MsgUID struct {
-	engine.BaseUID
 
 	body string
 }
@@ -242,7 +241,6 @@ type MsgUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *MsgRes) UIDs() []engine.ResUID {
 	x := &MsgUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		body:    obj.Body,
 	}
 	return []engine.ResUID{x}

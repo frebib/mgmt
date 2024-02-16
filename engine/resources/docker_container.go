@@ -417,9 +417,7 @@ func (obj *DockerContainerRes) Cmp(r engine.Res) error {
 
 // DockerContainerUID is the UID struct for DockerContainerRes.
 type DockerContainerUID struct {
-	engine.BaseUID
-
-	name string
+	Name string
 }
 
 // DockerContainerResAutoEdges holds the state of the auto edge generator.
@@ -431,19 +429,10 @@ type DockerContainerResAutoEdges struct {
 // AutoEdges returns edges to any docker:image resource that matches the image
 // specified in the docker:container resource definition.
 func (obj *DockerContainerRes) AutoEdges() (engine.AutoEdge, error) {
-	var result []engine.ResUID
-	var reversed bool
-	if obj.State != "removed" {
-		reversed = true
-	}
-	result = append(result, &DockerImageUID{
-		BaseUID: engine.BaseUID{
-			Reversed: &reversed,
-		},
-		image: dockerImageNameTag(obj.Image),
-	})
 	return &DockerContainerResAutoEdges{
-		UIDs:    result,
+		UIDs: []engine.ResUID{&DockerImageUID{
+			image: dockerImageNameTag(obj.Image),
+		}},
 		pointer: 0,
 	}, nil
 }
@@ -473,11 +462,9 @@ func (obj *DockerContainerResAutoEdges) Test(input []bool) bool {
 // UIDs includes all params to make a unique identification of this object. Most
 // resources only return one, although some resources can return multiple.
 func (obj *DockerContainerRes) UIDs() []engine.ResUID {
-	x := &DockerContainerUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+	return []engine.ResUID{
+		&DockerContainerUID{Name: obj.Name()},
 	}
-	return []engine.ResUID{x}
 }
 
 // UnmarshalYAML is the custom unmarshal handler for this struct. It is

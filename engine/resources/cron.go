@@ -443,29 +443,8 @@ func (obj *CronRes) Cmp(r engine.Res) error {
 
 // CronUID is a unique resource identifier.
 type CronUID struct {
-	// NOTE: There is also a name variable in the BaseUID struct, this is
-	// information about where this UID came from, and is unrelated to the
-	// information about the resource we're matching. That data which is
-	// used in the IFF function, is what you see in the struct fields here.
-	engine.BaseUID
-
-	unit    string // name of target unit
-	session bool   // user session
-}
-
-// IFF aka if and only if they are equivalent, return true. If not, false.
-func (obj *CronUID) IFF(uid engine.ResUID) bool {
-	res, ok := uid.(*CronUID)
-	if !ok {
-		return false
-	}
-	if obj.unit != res.unit {
-		return false
-	}
-	if obj.session != res.session {
-		return false
-	}
-	return true
+	Unit    string // name of target unit
+	Session bool   // user session
 }
 
 // AutoEdges returns the AutoEdge interface.
@@ -482,9 +461,8 @@ func (obj *CronRes) UIDs() []engine.ResUID {
 	}
 	uids := []engine.ResUID{
 		&CronUID{
-			BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-			unit:    unit,        // name of target unit
-			session: obj.Session, // user session
+			Unit:    unit,        // name of target
+			Session: obj.Session, // user session
 		},
 	}
 	if file, err := obj.makeComposite(); err == nil {

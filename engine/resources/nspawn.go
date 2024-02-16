@@ -287,31 +287,13 @@ func (obj *NspawnRes) Cmp(r engine.Res) error {
 
 // NspawnUID is a unique resource identifier.
 type NspawnUID struct {
-	// NOTE: There is also a name variable in the BaseUID struct, this is
-	// information about where this UID came from, and is unrelated to the
-	// information about the resource we're matching. That data which is
-	// used in the IFF function, is what you see in the struct fields here.
-	engine.BaseUID
-
-	name string // the machine name
-}
-
-// IFF aka if and only if they are equivalent, return true. If not, false.
-func (obj *NspawnUID) IFF(uid engine.ResUID) bool {
-	res, ok := uid.(*NspawnUID)
-	if !ok {
-		return false
-	}
-	return obj.name == res.name
+	Name string // the machine name
 }
 
 // UIDs includes all params to make a unique identification of this object. Most
 // resources only return one although some resources can return multiple.
 func (obj *NspawnRes) UIDs() []engine.ResUID {
-	x := &NspawnUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(), // svc name
-	}
+	x := &NspawnUID{Name: obj.Name()}
 	return append([]engine.ResUID{x}, obj.svc.UIDs()...)
 }
 

@@ -130,7 +130,6 @@ func (obj *TimerRes) Cmp(r engine.Res) error {
 
 // TimerUID is the UID struct for TimerRes.
 type TimerUID struct {
-	engine.BaseUID
 
 	name string
 }
@@ -139,7 +138,6 @@ type TimerUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *TimerRes) UIDs() []engine.ResUID {
 	x := &TimerUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),
 	}
 	return []engine.ResUID{x}

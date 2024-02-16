@@ -130,7 +130,6 @@ func (obj *PrintRes) Cmp(r engine.Res) error {
 
 // PrintUID is the UID struct for PrintRes.
 type PrintUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -138,7 +137,6 @@ type PrintUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *PrintRes) UIDs() []engine.ResUID {
 	x := &PrintUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),
 	}
 	return []engine.ResUID{x}

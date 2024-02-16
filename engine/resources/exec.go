@@ -682,7 +682,6 @@ func (obj *ExecRes) Interrupt() error {
 
 // ExecUID is the UID struct for ExecRes.
 type ExecUID struct {
-	engine.BaseUID
 	Cmd      string
 	WatchCmd string
 	IfCmd    string
@@ -721,45 +720,15 @@ func (obj *ExecResAutoEdges) Test(input []bool) bool {
 // AutoEdges returns the AutoEdge interface. In this case the systemd units.
 func (obj *ExecRes) AutoEdges() (engine.AutoEdge, error) {
 	var data []engine.ResUID
-	var reversed = true
 
 	for _, x := range obj.cmdFiles() {
-		data = append(data, &PkgFileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			path: x, // what matters
-		})
-		data = append(data, &FileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			path: x,
-		})
+		data = append(data, &FileUID{Path: x})
 	}
 	if obj.User != "" {
-		data = append(data, &UserUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			name: obj.User,
-		})
+		data = append(data, &UserUID{Name: obj.User})
 	}
 	if obj.Group != "" {
-		data = append(data, &GroupUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			name: obj.Group,
-		})
+		data = append(data, &GroupUID{Name: obj.Group})
 	}
 
 	return &ExecResAutoEdges{
@@ -772,7 +741,6 @@ func (obj *ExecRes) AutoEdges() (engine.AutoEdge, error) {
 // resources only return one, although some resources can return multiple.
 func (obj *ExecRes) UIDs() []engine.ResUID {
 	x := &ExecUID{
-		BaseUID:  engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		Cmd:      obj.getCmd(),
 		WatchCmd: obj.WatchCmd,
 		IfCmd:    obj.IfCmd,

@@ -613,7 +613,6 @@ type NetUID struct {
 	// information about where this UID came from, and is unrelated to the
 	// information about the resource we're matching. That data which is
 	// used in the IFF function, is what you see in the struct fields here.
-	engine.BaseUID
 
 	name string // the network interface name
 }
@@ -631,8 +630,7 @@ func (obj *NetUID) IFF(uid engine.ResUID) bool {
 // resources only return one although some resources can return multiple.
 func (obj *NetRes) UIDs() []engine.ResUID {
 	x := &NetUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+		name: obj.Name(),
 	}
 	return []engine.ResUID{x}
 }

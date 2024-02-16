@@ -1336,17 +1336,7 @@ func (obj *FileRes) Cmp(r engine.Res) error {
 
 // FileUID is the UID struct for FileRes.
 type FileUID struct {
-	engine.BaseUID
-	path string
-}
-
-// IFF aka if and only if they are equivalent, return true. If not, false.
-func (obj *FileUID) IFF(uid engine.ResUID) bool {
-	res, ok := uid.(*FileUID)
-	if !ok {
-		return false
-	}
-	return obj.path == res.path
+	Path string
 }
 
 // FileResAutoEdges holds the state of the auto edge generator.
@@ -1415,29 +1405,13 @@ func (obj *FileRes) AutoEdges() (engine.AutoEdge, error) {
 	values := util.PathSplitFullReversed(obj.getPath())
 	_, values = values[0], values[1:] // get rid of first value which is me!
 	for _, x := range values {
-		var reversed = true // cheat by passing a pointer
-		data = append(data, &FileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			path: x, // what matters
-		}) // build list
+		data = append(data, &FileUID{Path: x}) // build list
 	}
 
 	// Ensure any file or dir fragments come first.
-	frags := []engine.ResUID{}
+	var frags []engine.ResUID
 	for _, frag := range obj.Fragments {
-		var reversed = true // cheat by passing a pointer
-		frags = append(frags, &FileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			path: frag, // what matters
-		}) // build list
+		frags = append(frags, &FileUID{Path: frag}) // build list
 
 	}
 
@@ -1452,10 +1426,7 @@ func (obj *FileRes) AutoEdges() (engine.AutoEdge, error) {
 // UIDs includes all params to make a unique identification of this object. Most
 // resources only return one, although some resources can return multiple.
 func (obj *FileRes) UIDs() []engine.ResUID {
-	x := &FileUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		path:    obj.getPath(),
-	}
+	x := &FileUID{Path: obj.getPath()}
 	return []engine.ResUID{x}
 }
 

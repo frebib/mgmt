@@ -389,7 +389,6 @@ type SvcUID struct {
 	// information about where this UID came from, and is unrelated to the
 	// information about the resource we're matching. That data which is
 	// used in the IFF function, is what you see in the struct fields here.
-	engine.BaseUID
 	name    string // the svc name
 	session bool   // user session
 }
@@ -458,14 +457,9 @@ type SvcResAutoEdgesCron struct {
 // Next returns the next automatic edge.
 func (obj *SvcResAutoEdgesCron) Next() []engine.ResUID {
 	// XXX: should this be true if SvcRes State == "stopped"?
-	reversed := false
 	value := &CronUID{
-		BaseUID: engine.BaseUID{
-			Kind:     "CronRes",
-			Reversed: &reversed,
-		},
-		unit:    obj.unit,    // target unit
-		session: obj.session, // user session
+		Unit:    obj.unit,    // target unit
+		Session: obj.session, // user session
 	}
 	return []engine.ResUID{value} // we return one, even though api supports N
 }
@@ -500,15 +494,7 @@ func (obj *SvcRes) AutoEdges() (engine.AutoEdge, error) {
 		}
 	}
 	for _, x := range svcFiles {
-		var reversed = true
-		data = append(data, &FileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
-			path: x, // what matters
-		})
+		data = append(data, &FileUID{Path: x})
 	}
 
 	fileEdge := &FileResAutoEdges{
@@ -528,7 +514,6 @@ func (obj *SvcRes) AutoEdges() (engine.AutoEdge, error) {
 // resources only return one, although some resources can return multiple.
 func (obj *SvcRes) UIDs() []engine.ResUID {
 	x := &SvcUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),  // svc name
 		session: obj.Session, // user session
 	}

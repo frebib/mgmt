@@ -462,15 +462,8 @@ func (obj *PkgRes) Copy() engine.CopyableRes {
 
 // PkgUID is the main UID struct for PkgRes.
 type PkgUID struct {
-	engine.BaseUID
 	name  string // pkg name
 	state string // pkg state or "version"
-}
-
-// PkgFileUID is the UID struct for PkgRes files.
-type PkgFileUID struct {
-	engine.BaseUID
-	path string // path of the file
 }
 
 // IFF aka if and only if they are equivalent, return true. If not, false.
@@ -507,15 +500,7 @@ func (obj *PkgResAutoEdges) Next() []engine.ResUID {
 	var result []engine.ResUID
 	// return UID's for whatever is in obj.fileList
 	for _, x := range obj.fileList {
-		var reversed = false // cheat by passing a pointer
-		result = append(result, &FileUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.name,
-				Kind:     obj.kind,
-				Reversed: &reversed,
-			},
-			path: x, // what matters
-		}) // build list
+		result = append(result, &FileUID{Path: x}) // build list
 	}
 	return result
 }
@@ -588,13 +573,7 @@ func (obj *PkgRes) AutoEdges() (engine.AutoEdge, error) {
 	// add matches for any svc resources found in pkg definition!
 	var svcUIDs []engine.ResUID
 	for _, x := range ReturnSvcInFileList(obj.fileList) {
-		var reversed = false
 		svcUIDs = append(svcUIDs, &SvcUID{
-			BaseUID: engine.BaseUID{
-				Name:     obj.Name(),
-				Kind:     obj.Kind(),
-				Reversed: &reversed,
-			},
 			name: x, // the svc name itself in the SvcUID object!
 		}) // build list
 	}
@@ -612,18 +591,13 @@ func (obj *PkgRes) AutoEdges() (engine.AutoEdge, error) {
 // resources only return one, although some resources can return multiple.
 func (obj *PkgRes) UIDs() []engine.ResUID {
 	x := &PkgUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
-		state:   obj.State,
+		name:  obj.Name(),
+		state: obj.State,
 	}
 	result := []engine.ResUID{x}
 
 	for _, y := range obj.fileList {
-		y := &PkgFileUID{
-			BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-			path:    y,
-		}
-		result = append(result, y)
+		result = append(result, &FileUID{Path: y})
 	}
 	return result
 }

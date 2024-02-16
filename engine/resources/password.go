@@ -328,7 +328,6 @@ func (obj *PasswordRes) Cmp(r engine.Res) error {
 
 // PasswordUID is the UID struct for PasswordRes.
 type PasswordUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -336,7 +335,6 @@ type PasswordUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *PasswordRes) UIDs() []engine.ResUID {
 	x := &PasswordUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),
 	}
 	return []engine.ResUID{x}

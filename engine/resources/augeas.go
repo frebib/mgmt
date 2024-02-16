@@ -287,15 +287,13 @@ func (obj *AugeasRes) Cmp(r engine.Res) error {
 
 // AugeasUID is the UID struct for AugeasRes.
 type AugeasUID struct {
-	engine.BaseUID
 	name string
 }
 
 // UIDs includes all params to make a unique identification of this object.
 func (obj *AugeasRes) UIDs() []engine.ResUID {
 	x := &AugeasUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+		name: obj.Name(),
 	}
 	return []engine.ResUID{x}
 }

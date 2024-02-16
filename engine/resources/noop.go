@@ -100,7 +100,6 @@ func (obj *NoopRes) Cmp(r engine.Res) error {
 
 // NoopUID is the UID struct for NoopRes.
 type NoopUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -108,7 +107,6 @@ type NoopUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *NoopRes) UIDs() []engine.ResUID {
 	x := &NoopUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),
 	}
 	return []engine.ResUID{x}

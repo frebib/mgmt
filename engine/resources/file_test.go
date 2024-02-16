@@ -32,23 +32,26 @@ import (
 )
 
 func TestFileAutoEdge1(t *testing.T) {
-
 	g, err := pgraph.NewGraph("TestGraph")
 	if err != nil {
 		t.Errorf("error creating graph: %v", err)
 		return
 	}
 
-	r1 := &FileRes{
-		Path: "/tmp/a/b/", // some dir
-	}
-	r2 := &FileRes{
-		Path: "/tmp/a/", // some parent dir
-	}
-	r3 := &FileRes{
-		Path: "/tmp/a/b/c", // some child file
-	}
-	g.AddVertex(r1, r2, r3)
+	// parent directory
+	r1, _ := engine.NewNamedResource("file", "/tmp/a/")
+	r1.(*FileRes).Path = r1.Name()
+	// subdirectory
+	r2, _ := engine.NewNamedResource("file", "/tmp/a/b/")
+	r2.(*FileRes).Path = r2.Name()
+	// child file
+	r3, _ := engine.NewNamedResource("file", "/tmp/a/b/c")
+	r3.(*FileRes).Path = r3.Name()
+	// child file with no intermediate parent directory defined
+	r4, _ := engine.NewNamedResource("file", "/tmp/a/b/d/e")
+	r4.(*FileRes).Path = r4.Name()
+
+	g.AddVertex(r1, r2, r3, r4)
 
 	if i := g.NumEdges(); i != 0 {
 		t.Errorf("should have 0 edges instead of: %d", i)
@@ -64,9 +67,10 @@ func TestFileAutoEdge1(t *testing.T) {
 	}
 
 	// two edges should have been added
-	if i := g.NumEdges(); i != 2 {
+	if i := g.NumEdges(); i != 3 {
 		t.Errorf("should have 2 edges instead of: %d", i)
 	}
+	logf("Edges: %s", g.Edges())
 }
 
 func TestMiscEncodeDecode1(t *testing.T) {

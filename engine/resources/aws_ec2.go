@@ -811,8 +811,6 @@ func (obj *AwsEc2Res) prependName() string {
 
 // AwsEc2UID is the UID struct for AwsEc2Res.
 type AwsEc2UID struct {
-	engine.BaseUID
-
 	name string
 }
 
@@ -820,8 +818,7 @@ type AwsEc2UID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *AwsEc2Res) UIDs() []engine.ResUID {
 	x := &AwsEc2UID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+		name: obj.Name(),
 	}
 	return []engine.ResUID{x}
 }

@@ -237,8 +237,6 @@ func (obj *DockerImageRes) Cmp(r engine.Res) error {
 
 // DockerImageUID is the UID struct for DockerImageRes.
 type DockerImageUID struct {
-	engine.BaseUID
-
 	image string
 }
 
@@ -246,8 +244,7 @@ type DockerImageUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *DockerImageRes) UIDs() []engine.ResUID {
 	x := &DockerImageUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		image:   dockerImageNameTag(obj.Name()),
+		image: dockerImageNameTag(obj.Name()),
 	}
 	return []engine.ResUID{x}
 }

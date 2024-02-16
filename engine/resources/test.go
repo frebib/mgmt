@@ -410,7 +410,6 @@ func (obj *TestRes) Cmp(r engine.Res) error {
 
 // TestUID is the UID struct for TestRes.
 type TestUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -418,8 +417,7 @@ type TestUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *TestRes) UIDs() []engine.ResUID {
 	x := &TestUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+		name: obj.Name(),
 	}
 	return []engine.ResUID{x}
 }

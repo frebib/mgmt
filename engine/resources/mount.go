@@ -401,7 +401,6 @@ func (obj *MountRes) Cmp(r engine.Res) error {
 
 // MountUID is a unique resource identifier.
 type MountUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -418,8 +417,7 @@ func (obj *MountUID) IFF(uid engine.ResUID) bool {
 // resources only return one although some resources can return multiple.
 func (obj *MountRes) UIDs() []engine.ResUID {
 	x := &MountUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
+		name: obj.Name(),
 	}
 	return []engine.ResUID{x}
 }

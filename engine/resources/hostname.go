@@ -245,8 +245,6 @@ func (obj *HostnameRes) Cmp(r engine.Res) error {
 
 // HostnameUID is the UID struct for HostnameRes.
 type HostnameUID struct {
-	engine.BaseUID
-
 	name              string
 	prettyHostname    string
 	staticHostname    string
@@ -257,7 +255,6 @@ type HostnameUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *HostnameRes) UIDs() []engine.ResUID {
 	x := &HostnameUID{
-		BaseUID:           engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:              obj.Name(),
 		prettyHostname:    obj.PrettyHostname,
 		staticHostname:    obj.StaticHostname,

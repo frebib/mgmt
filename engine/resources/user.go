@@ -348,28 +348,8 @@ func (obj *UserRes) Cmp(r engine.Res) error {
 
 // UserUID is the UID struct for UserRes.
 type UserUID struct {
-	engine.BaseUID
-	name string
-	uid  *uint32
-}
-
-// IFF aka if and only if they are equivalent, return true. If not, false.
-func (obj *UserUID) IFF(uid engine.ResUID) bool {
-	res, ok := uid.(*UserUID)
-	if !ok {
-		return false
-	}
-	if obj.uid != nil && res.uid != nil {
-		if *obj.uid != *res.uid {
-			return false
-		}
-	}
-	if obj.name != "" && res.name != "" {
-		if obj.name != res.name {
-			return false
-		}
-	}
-	return true
+	Name string
+	Uid  *uint32
 }
 
 // UserResAutoEdges holds the state of the auto edge generator.
@@ -386,33 +366,14 @@ type UserResAutoEdges struct {
 // groups before we delete their members.
 func (obj *UserRes) AutoEdges() (engine.AutoEdge, error) {
 	var result []engine.ResUID
-	var reversed bool
-	if obj.State == "exists" {
-		reversed = true
-	}
 	if obj.GID != nil {
-		result = append(result, &GroupUID{
-			BaseUID: engine.BaseUID{
-				Reversed: &reversed,
-			},
-			gid: obj.GID,
-		})
+		result = append(result, &GroupUID{Gid: obj.GID})
 	}
 	if obj.Group != nil {
-		result = append(result, &GroupUID{
-			BaseUID: engine.BaseUID{
-				Reversed: &reversed,
-			},
-			name: *obj.Group,
-		})
+		result = append(result, &GroupUID{Name: *obj.Group})
 	}
 	for _, group := range obj.Groups {
-		result = append(result, &GroupUID{
-			BaseUID: engine.BaseUID{
-				Reversed: &reversed,
-			},
-			name: group,
-		})
+		result = append(result, &GroupUID{Name: group})
 	}
 	return &UserResAutoEdges{
 		UIDs:    result,
@@ -446,9 +407,8 @@ func (obj *UserResAutoEdges) Test(input []bool) bool {
 // resources only return one, although some resources can return multiple.
 func (obj *UserRes) UIDs() []engine.ResUID {
 	x := &UserUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		name:    obj.Name(),
-		uid:     obj.UID,
+		Name: obj.Name(),
+		Uid:  obj.UID,
 	}
 	return []engine.ResUID{x}
 }

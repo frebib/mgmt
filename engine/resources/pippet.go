@@ -148,7 +148,6 @@ func (obj *PippetRes) Cmp(r engine.Res) error {
 
 // PippetUID is the UID struct for PippetRes.
 type PippetUID struct {
-	engine.BaseUID
 	resourceType  string
 	resourceTitle string
 }
@@ -157,7 +156,6 @@ type PippetUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *PippetRes) UIDs() []engine.ResUID {
 	x := &PippetUID{
-		BaseUID:       engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		resourceType:  obj.Type,
 		resourceTitle: obj.Title,
 	}

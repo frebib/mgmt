@@ -1258,19 +1258,11 @@ func (obj *VirtRes) Cmp(r engine.Res) error {
 	return nil
 }
 
-// VirtUID is the UID struct for FileRes.
-type VirtUID struct {
-	engine.BaseUID
-}
-
 // UIDs includes all params to make a unique identification of this object. Most
 // resources only return one, although some resources can return multiple.
 func (obj *VirtRes) UIDs() []engine.ResUID {
-	x := &VirtUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
-		// TODO: add more properties here so we can link to vm dependencies
-	}
-	return []engine.ResUID{x}
+	// TODO: add properties here so we can link to vm dependencies
+	return nil
 }
 
 // UnmarshalYAML is the custom unmarshal handler for this struct. It is

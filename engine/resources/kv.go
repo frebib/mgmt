@@ -364,7 +364,6 @@ func (obj *KVRes) Interrupt() error {
 
 // KVUID is the UID struct for KVRes.
 type KVUID struct {
-	engine.BaseUID
 	name string
 }
 
@@ -372,7 +371,6 @@ type KVUID struct {
 // resources only return one, although some resources can return multiple.
 func (obj *KVRes) UIDs() []engine.ResUID {
 	x := &KVUID{
-		BaseUID: engine.BaseUID{Name: obj.Name(), Kind: obj.Kind()},
 		name:    obj.Name(),
 	}
 	return []engine.ResUID{x}
