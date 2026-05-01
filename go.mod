@@ -43,7 +43,7 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vishvananda/netlink v1.1.1-0.20201029203352-d40f9887b852
-	go.etcd.io/etcd/api/v3 v3.5.0
+	go.etcd.io/etcd/api/v3 v3.6.11
 	go.etcd.io/etcd/client/pkg/v3 v3.5.0
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.etcd.io/etcd/server/v3 v3.5.0
