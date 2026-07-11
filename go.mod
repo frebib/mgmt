@@ -38,7 +38,7 @@ require (
 	github.com/pin/tftp v0.0.0-20210809155059-0161c5dd2e96
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
-	github.com/sanity-io/litter v1.5.1
+	github.com/sanity-io/litter v1.5.8
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.6.0
 	github.com/urfave/cli/v2 v2.3.0
