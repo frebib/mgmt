@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.54.0 // indirect
 	github.com/Microsoft/go-winio v0.4.17 // indirect
-	github.com/aws/aws-sdk-go v1.41.1
+	github.com/aws/aws-sdk-go v1.55.8
 	github.com/containerd/containerd v1.4.9 // indirect
 	github.com/coredhcp/coredhcp v0.0.0-20211012092557-3e75f3b9c460
 	github.com/coreos/go-systemd/v22 v22.3.2
